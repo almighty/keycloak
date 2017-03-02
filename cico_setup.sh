@@ -45,7 +45,7 @@ function install_deps() {
 }
 
 function build() {
-  mvn clean install -B -DskipTests=true -Pdistribution
+  mvn clean install -DskipTests=true -Pdistribution
 }
 
 function deploy() {

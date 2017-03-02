@@ -46,6 +46,13 @@ function install_deps() {
 
 function build() {
   mvn clean install -DskipTests=true -Pdistribution
+
+  # We move the executables to the docker folder
+  cp ./distribution/server-dist/target/keycloak-$KEYCLOAK_VERSION.tar.gz ./docker/
+}
+
+function cleanup() {
+  rm ./docker/keycloak-$KEYCLOAK_VERSION.tar.gz 
 }
 
 function deploy() {
@@ -55,6 +62,8 @@ function deploy() {
   docker tag $DOCKER_IMAGE_DEPLOY 8.43.84.245.xip.io/$REPO_NAME/$PROJECT_NAME:latest
   docker push 8.43.84.245.xip.io/$REPO_NAME/$PROJECT_NAME:latest
   echo 'CICO: Image pushed, ready to update deployed app'
+
+  cleanup;
 }
 
 function cico_setup() {

@@ -45,7 +45,10 @@ function install_deps() {
 }
 
 function build() {
-  mvn clean install -DskipTests=true -Pdistribution
+  # Set the version according to the ENV variable
+  mvn -q versions:set -DgenerateBackupPoms=false -DnewVersion=$KEYCLOAK_VERSION
+  # Only build the keycloak-server to save time
+  mvn clean install -DskipTests=true -pl :keycloak-server-dist -am -P distribution
 }
 
 function deploy() {

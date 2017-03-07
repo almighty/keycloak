@@ -59,8 +59,8 @@ function deploy() {
 
   rm docker/keycloak-$KEYCLOAK_VERSION.tar.gz
 
-  docker tag $DOCKER_IMAGE_DEPLOY 8.43.84.245.xip.io/$REPO_NAME/$PROJECT_NAME-postgres:latest
-  docker push 8.43.84.245.xip.io/$REPO_NAME/$PROJECT_NAME-postgres:latest
+  docker tag $DOCKER_IMAGE_DEPLOY registry.devshift.net/$REPO_NAME/$PROJECT_NAME-postgres:latest
+  docker push registry.devshift.net/$REPO_NAME/$PROJECT_NAME-postgres:latest
   echo 'CICO: Image pushed, ready to update deployed app'
 }
 

@@ -54,6 +54,7 @@ function build() {
   echo 'CICO: Installing all the distribution'
   local EXIT_CODE=$?
   if [[ $EXIT_CODE -ne 0 ]]; then
+    echo 'CICO: Run mv clean install -DskipTests=true -Pdistribution'
     mvn clean install -DskipTests=true -Pdistribution
   fi
   echo 'CICO: Listing the directory server-dist'

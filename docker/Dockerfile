@@ -17,7 +17,10 @@ RUN yum install -y epel-release jq git && yum clean all
 ENV JBOSS_HOME /opt/jboss/keycloak
 
 ADD keycloak-$KEYCLOAK_VERSION.tar.gz /opt/jboss/
-RUN mv /opt/jboss/keycloak-$KEYCLOAK_VERSION /opt/jboss/keycloak
+RUN mkdir -p $JBOSS_HOME && cd /opt/jboss/keycloak-$KEYCLOAK_VERSION && cp -R * $JBOSS_HOME
+
+WORKDIR $JBOSS_HOME
+
 RUN chown -R 1000:0 ${JBOSS_HOME} && chmod -R ug+rw ${JBOSS_HOME}
 
 USER jboss
@@ -35,6 +38,8 @@ ADD module.xml /opt/jboss/keycloak/modules/system/layers/base/org/postgresql/jdb
 # InstallCert is used to export the certificate of the destination OSO
 RUN git clone https://github.com/escline/InstallCert.git && \
      javac /opt/jboss/InstallCert/InstallCert.java
+
+ADD standalone.xml /opt/jboss/keycloak/
 
 EXPOSE 8080
 ENTRYPOINT [ "/opt/jboss/docker-entrypoint.sh" ]

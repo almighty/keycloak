@@ -37,9 +37,9 @@ ADD module.xml /opt/jboss/keycloak/modules/system/layers/base/org/postgresql/jdb
 
 # InstallCert is used to export the certificate of the destination OSO
 RUN git clone https://github.com/escline/InstallCert.git && \
-     javac /opt/jboss/InstallCert/InstallCert.java
+     javac /opt/jboss/keycloak/InstallCert/InstallCert.java
 
-ADD standalone.xml /opt/jboss/keycloak/
+ADD standalone.xml /opt/jboss/keycloak/standalone/configuration
 
 EXPOSE 8080
 ENTRYPOINT [ "/opt/jboss/docker-entrypoint.sh" ]

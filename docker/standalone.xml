@@ -45,6 +45,7 @@
                     <properties path="application-roles.properties" relative-to="jboss.server.config.dir"/>
                 </authorization>
             </security-realm>
+            <!-- Added by Almighty keycloak team -->
             <security-realm name="UndertowRealm">
                 <server-identities>
                     <ssl>
@@ -52,6 +53,7 @@
                     </ssl>
                 </server-identities>
             </security-realm>
+            <!-- ------------------------------- -->
         </security-realms>
         <audit-log>
             <formatters>
@@ -371,7 +373,9 @@
                     <filter-ref name="server-header"/>
                     <filter-ref name="x-powered-by-header"/>
                 </host>
+                <!-- Added by Almighty keycloak team -->
                 <https-listener name="https" socket-binding="https" security-realm="UndertowRealm"/>
+                <!-- ------------------------------- -->
             </server>
             <servlet-container name="default">
                 <jsp-config/>

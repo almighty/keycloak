@@ -22,7 +22,7 @@ RUN mkdir -p $JBOSS_HOME && cd /opt/jboss/keycloak-$KEYCLOAK_VERSION && cp -R * 
 WORKDIR $JBOSS_HOME
 
 # InstallCert is used to export the certificate of the destination OSO
-RUN git clone https://github.com/escline/InstallCert.git && \
+RUN git clone https://github.com/almighty/InstallCert.git && \
      javac /opt/jboss/keycloak/InstallCert/InstallCert.java
 
 RUN chown -R 1000:0 ${JBOSS_HOME} && chmod -R ug+rw ${JBOSS_HOME}

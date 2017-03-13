@@ -85,7 +85,7 @@
     <profile>
         <subsystem xmlns="urn:jboss:domain:logging:3.0">
             <console-handler name="CONSOLE">
-                <level name="INFO"/>
+                <level name="DEBUG"/>
                 <formatter>
                     <named-formatter name="COLOR-PATTERN"/>
                 </formatter>
@@ -99,16 +99,16 @@
                 <append value="true"/>
             </periodic-rotating-file-handler>
             <logger category="com.arjuna">
-                <level name="WARN"/>
+                <level name="DEBUG"/>
             </logger>
             <logger category="org.jboss.as.config">
                 <level name="DEBUG"/>
             </logger>
             <logger category="sun.rmi">
-                <level name="WARN"/>
+                <level name="DEBUG"/>
             </logger>
             <root-logger>
-                <level name="INFO"/>
+                <level name="DEBUG"/>
                 <handlers>
                     <handler name="CONSOLE"/>
                     <handler name="FILE"/>
@@ -385,6 +385,8 @@
             <filters>
                 <response-header name="server-header" header-name="Server" header-value="WildFly/10"/>
                 <response-header name="x-powered-by-header" header-name="X-Powered-By" header-value="Undertow/1"/>
+
+                <filter name="request-dumper" module="io.undertow.core" class-name="io.undertow.server.handlers.RequestDumpingHandler"/>
             </filters>
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:keycloak-server:1.1">

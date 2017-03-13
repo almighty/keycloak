@@ -24,6 +24,7 @@ keytool -importcert -trustcacerts -alias $OSO_DOMAIN_NAME-1 -keystore keycloak.j
 yes
 ANSWERS
 
+echo "Move keycloak.jks store to the destination standalone/configuration directory"
 mv keycloak.jks ./standalone/configuration
 
 # Set the password of the keystore to the configuration file

@@ -108,20 +108,20 @@ public abstract class AbstractOAuth2IdentityProvider<C extends OAuth2IdentityPro
     }
 
     protected String extractTokenFromResponse(String response, String tokenName) {
-    	  if(response == null)
-    	  	return null;
-    	  
+        if (response == null)
+            return null;
+
         if (response.startsWith("{")) {
             try {
-            		JsonNode node = mapper.readTree(response);
-            		if(node.has(tokenName)){
-            			String s = node.get(tokenName).textValue();
-            			if(s == null || s.trim().isEmpty())
-            				return null;
-                  return s;
-            		} else {
-            			return null;
-            		}
+                JsonNode node = mapper.readTree(response);
+                if (node.has(tokenName)) {
+                    String s = node.get(tokenName).textValue();
+                    if (s == null || s.trim().isEmpty())
+                        return null;
+                    return s;
+                } else {
+                    return null;
+                }
             } catch (IOException e) {
                 throw new IdentityBrokerException("Could not extract token [" + tokenName + "] from response [" + response + "] due: " + e.getMessage(), e);
             }
@@ -162,19 +162,19 @@ public abstract class AbstractOAuth2IdentityProvider<C extends OAuth2IdentityPro
     }
 
     /**
-     * Get JSON property as text. JSON numbers and booleans are converted to text. Empty string is converted to null. 
-     * 
+     * Get JSON property as text. JSON numbers and booleans are converted to text. Empty string is converted to null.
+     *
      * @param jsonNode to get property from
-     * @param name of property to get
+     * @param name     of property to get
      * @return string value of the property or null.
      */
     public String getJsonProperty(JsonNode jsonNode, String name) {
         if (jsonNode.has(name) && !jsonNode.get(name).isNull()) {
-        	  String s = jsonNode.get(name).asText();
-        	  if(s != null && !s.isEmpty())
-        	  		return s;
-        	  else
-      	  			return null;
+            String s = jsonNode.get(name).asText();
+            if (s != null && !s.isEmpty())
+                return s;
+            else
+                return null;
         }
 
         return null;
@@ -251,6 +251,13 @@ public abstract class AbstractOAuth2IdentityProvider<C extends OAuth2IdentityPro
 
         public SimpleHttp generateTokenRequest(String authorizationCode) {
             JSSETruststoreConfigurator configurator = new JSSETruststoreConfigurator(session);
+
+            logger.debugf("client_id = [%s]", getConfig().getClientId());
+            logger.debugf("client_secret = [%s]", getConfig().getClientSecret());
+            logger.debugf("code = [%s]", authorizationCode);
+            logger.debugf("redirect_uri = [%s]", uriInfo.getAbsolutePath().toString());
+            logger.debugf("grant_type = [%s]", OAUTH2_GRANT_TYPE_AUTHORIZATION_CODE);
+
             return SimpleHttp.doPost(getConfig().getTokenUrl())
                     .param(OAUTH2_PARAMETER_CODE, authorizationCode)
                     .param(OAUTH2_PARAMETER_CLIENT_ID, getConfig().getClientId())

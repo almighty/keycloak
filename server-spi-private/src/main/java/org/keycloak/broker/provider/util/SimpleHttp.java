@@ -154,7 +154,7 @@ public class SimpleHttp {
 				erris = connection.getErrorStream();
 				java.util.Scanner errscn = new java.util.Scanner(erris).useDelimiter("\\A");
     				String errbody = errscn.hasNext() ? s.next() : "";
-				logger.error("IOException when reading connection input stream: " + errbody + "; " + e);
+				logger.error("IOException when reading connection input stream: " + errbody + "; " + ioerrexcp);
 				throw ioerrexcp;
 			} finally {
 				if (erris != null) {

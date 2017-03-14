@@ -128,7 +128,8 @@ public class SimpleHttp {
             if (headers != null) {
                 for (Map.Entry<String, String> h : headers.entrySet()) {
                     connection.setRequestProperty(h.getKey(), h.getValue());
-                }
+	      	    logger.debug("Request Header: " + h.getKey() + "  Value: " + h.getValue());
+	        }
             }
 
             if (post) {
@@ -153,7 +154,7 @@ public class SimpleHttp {
 			java.util.Map<String, java.util.List<String>> hdrs = connection.getHeaderFields();
 			java.util.Set<String> hdrKeys = hdrs.keySet();
 		    	for (String k : hdrKeys) {
-		      		logger.debug("Header: " + k + "  Value: " + hdrs.get(k));
+		      		logger.debug("Response Header: " + k + "  Value: " + hdrs.get(k));
 			}
             		is = connection.getInputStream();
 		} catch (IOException ioerrexcp) {

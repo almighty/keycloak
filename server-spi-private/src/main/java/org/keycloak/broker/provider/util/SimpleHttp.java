@@ -148,8 +148,9 @@ public class SimpleHttp {
             }
 
             String ce = connection.getHeaderField("Content-Encoding");
+		org.jboss.logging.Logger logger = org.jboss.logging.Logger.getLogger(SimpleHttp.class);
 		try {
-			java.util.Map<String, List<String>> hdrs = connection.getHeaderFields();
+			java.util.Map<String, java.util.List<String>> hdrs = connection.getHeaderFields();
 			java.util.Set<String> hdrKeys = hdrs.keySet();
 		    	for (String k : hdrKeys) {
 		      		logger.debug("Header: " + k + "  Value: " + hdrs.get(k));
@@ -158,7 +159,6 @@ public class SimpleHttp {
 		} catch (IOException ioerrexcp) {
 			InputStream erris = null;
 			try {
-				org.jboss.logging.Logger logger = org.jboss.logging.Logger.getLogger(SimpleHttp.class);
 				erris = connection.getErrorStream();
 				java.util.Scanner errscn = new java.util.Scanner(erris).useDelimiter("\\A");
     				String errbody = errscn.hasNext() ? errscn.next() : "";

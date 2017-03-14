@@ -8,7 +8,10 @@ import org.keycloak.broker.provider.BrokeredIdentityContext;
 import org.keycloak.broker.provider.IdentityBrokerException;
 import org.keycloak.broker.provider.util.SimpleHttp;
 import org.keycloak.broker.social.SocialIdentityProvider;
+import org.keycloak.events.EventBuilder;
 import org.keycloak.models.KeycloakSession;
+import org.keycloak.models.RealmModel;
+import org.keycloak.truststore.JSSETruststoreConfigurator;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -38,6 +41,11 @@ public class OpenshiftV3IdentityProvider extends AbstractOAuth2IdentityProvider<
     }
 
     @Override
+    public Object callback(RealmModel realm, AuthenticationCallback callback, EventBuilder event) {
+        return new OSOEndpoint(callback, realm, event);
+    }
+
+    @Override
     protected BrokeredIdentityContext doGetFederatedIdentity(String accessToken) {
         try {
             final JsonNode profile = fetchProfile(accessToken);
@@ -61,6 +69,27 @@ public class OpenshiftV3IdentityProvider extends AbstractOAuth2IdentityProvider<
     private JsonNode fetchProfile(String accessToken) throws IOException {
         return JsonSimpleHttp.asJson(SimpleHttp.doGet(getConfig().getUserInfoUrl())
                              .header("Authorization", "Bearer " + accessToken));
+    }
+
+    private class OSOEndpoint extends Endpoint {
+
+        public OSOEndpoint(AuthenticationCallback callback, RealmModel realm, EventBuilder event) {
+            super(callback, realm, event);
+        }
+
+        @Override
+        public SimpleHttp generateTokenRequest(String authorizationCode) {
+            JSSETruststoreConfigurator configurator = new JSSETruststoreConfigurator(session);
+
+            return SimpleHttp.doGet(getConfig().getTokenUrl())
+                    .param(OAUTH2_PARAMETER_CODE, authorizationCode)
+                    .param(OAUTH2_PARAMETER_CLIENT_ID, getConfig().getClientId())
+                    .param(OAUTH2_PARAMETER_CLIENT_SECRET, getConfig().getClientSecret())
+                    .param(OAUTH2_PARAMETER_REDIRECT_URI, uriInfo.getAbsolutePath().toString())
+                    .param(OAUTH2_PARAMETER_GRANT_TYPE, OAUTH2_GRANT_TYPE_AUTHORIZATION_CODE)
+                    .sslFactory(configurator.getSSLSocketFactory())
+                    .hostnameVerifier(configurator.getHostnameVerifier());
+        }
     }
 
 }

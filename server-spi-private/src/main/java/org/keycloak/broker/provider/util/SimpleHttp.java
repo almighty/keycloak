@@ -120,6 +120,7 @@ public class SimpleHttp {
         setupTruststoreIfApplicable(connection);
         OutputStream os = null;
         InputStream is = null;
+	org.jboss.logging.Logger logger = org.jboss.logging.Logger.getLogger(SimpleHttp.class);
 
         try {
             connection.setRequestMethod(method);
@@ -148,7 +149,6 @@ public class SimpleHttp {
             }
 
             String ce = connection.getHeaderField("Content-Encoding");
-		org.jboss.logging.Logger logger = org.jboss.logging.Logger.getLogger(SimpleHttp.class);
 		try {
 			java.util.Map<String, java.util.List<String>> hdrs = connection.getHeaderFields();
 			java.util.Set<String> hdrKeys = hdrs.keySet();

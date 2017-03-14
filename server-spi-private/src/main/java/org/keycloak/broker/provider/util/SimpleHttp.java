@@ -147,7 +147,7 @@ public class SimpleHttp {
             String ce = connection.getHeaderField("Content-Encoding");
 		try {
             is = connection.getInputStream();
-		} catch (IOException e) {
+		} catch (IOException ioerrexcp) {
 			InputStream erris = null;
 			try {
 				org.jboss.logging.Logger logger = org.jboss.logging.Logger.getLogger(SimpleHttp.class);
@@ -155,7 +155,7 @@ public class SimpleHttp {
 				java.util.Scanner errscn = new java.util.Scanner(erris).useDelimiter("\\A");
     				String errbody = errscn.hasNext() ? s.next() : "";
 				logger.error("IOException when reading connection input stream: " + errbody + "; " + e);
-				throw e;
+				throw ioerrexcp;
 			} finally {
 				if (erris != null) {
 			                try {

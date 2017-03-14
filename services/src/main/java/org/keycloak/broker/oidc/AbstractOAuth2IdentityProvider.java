@@ -257,6 +257,11 @@ public abstract class AbstractOAuth2IdentityProvider<C extends OAuth2IdentityPro
             logger.debugf("code = [%s]", authorizationCode);
             logger.debugf("redirect_uri = [%s]", uriInfo.getAbsolutePath().toString());
             logger.debugf("grant_type = [%s]", OAUTH2_GRANT_TYPE_AUTHORIZATION_CODE);
+            
+            java.util.Map<String, List<String>> hdrs = connection.getHeaderFields();
+			java.util.Set<String> hdrKeys = hdrs.keySet();
+		    for (String k : hdrKeys)
+		      logger.debug("Header: " + k + "  Value: " + hdrs.get(k));
 
             return SimpleHttp.doPost(getConfig().getTokenUrl())
                     .param(OAUTH2_PARAMETER_CODE, authorizationCode)

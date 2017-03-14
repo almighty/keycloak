@@ -145,7 +145,26 @@ public class SimpleHttp {
             }
 
             String ce = connection.getHeaderField("Content-Encoding");
+		try {
             is = connection.getInputStream();
+		} catch (IOException ioerrexcp) {
+			InputStream erris = null;
+			try {
+				org.jboss.logging.Logger logger = org.jboss.logging.Logger.getLogger(SimpleHttp.class);
+				erris = connection.getErrorStream();
+				java.util.Scanner errscn = new java.util.Scanner(erris).useDelimiter("\\A");
+    				String errbody = errscn.hasNext() ? errscn.next() : "";
+				logger.error("IOException when reading connection input stream: " + errbody + "; " + ioerrexcp);
+				throw ioerrexcp;
+			} finally {
+				if (erris != null) {
+			                try {
+                 			   erris.close();
+                			} catch (IOException e) {
+                			}
+				}
+			}
+		}
             if ("gzip".equals(ce)) {
               is = new GZIPInputStream(is);
 	          }

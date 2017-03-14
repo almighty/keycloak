@@ -151,7 +151,7 @@ public class SimpleHttp {
 			InputStream erris = null;
 			try {
 				org.jboss.logging.Logger logger = org.jboss.logging.Logger.getLogger(SimpleHttp.class);
-				erris = connection.getErrorStream()
+				erris = connection.getErrorStream();
 				java.util.Scanner errscn = new java.util.Scanner(erris).useDelimiter("\\A");
     				String errbody = errscn.hasNext() ? s.next() : "";
 				logger.error("IOException when reading connection input stream: " + errbody + "; " + e);

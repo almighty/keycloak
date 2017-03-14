@@ -17,6 +17,8 @@
 
 package org.keycloak.broker.provider.util;
 
+import org.jboss.logging.Logger;
+
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
@@ -29,7 +31,10 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
+import java.util.Set;
 import java.util.zip.GZIPInputStream;
 
 /**
@@ -37,6 +42,8 @@ import java.util.zip.GZIPInputStream;
  * @author Vlastimil Elias (velias at redhat dot com)
  */
 public class SimpleHttp {
+
+    private static final Logger logger = Logger.getLogger(SimpleHttp.class);
 
 
     private String url;
@@ -120,7 +127,6 @@ public class SimpleHttp {
         setupTruststoreIfApplicable(connection);
         OutputStream os = null;
         InputStream is = null;
-	org.jboss.logging.Logger logger = org.jboss.logging.Logger.getLogger(SimpleHttp.class);
 
         try {
             connection.setRequestMethod(method);
@@ -128,8 +134,8 @@ public class SimpleHttp {
             if (headers != null) {
                 for (Map.Entry<String, String> h : headers.entrySet()) {
                     connection.setRequestProperty(h.getKey(), h.getValue());
-	      	    logger.debug("Request Header: " + h.getKey() + "  Value: " + h.getValue());
-	        }
+                    logger.debugf("Request Header: %s = %s", h.getKey(), h.getValue());
+                }
             }
 
             if (post) {
@@ -141,42 +147,25 @@ public class SimpleHttp {
                 connection.setRequestProperty("Content-Length", String.valueOf(data.length()));
 
                 os = connection.getOutputStream();
-		
-		logger.debug("Request string for url (" + this.url + "): " + data);
-		    
+
+                logger.debugf("Request body for url (%s): %s ", this.url, data);
+
                 os.write(data.getBytes());
             } else {
                 connection.setDoOutput(false);
             }
 
             String ce = connection.getHeaderField("Content-Encoding");
-		try {
-			java.util.Map<String, java.util.List<String>> hdrs = connection.getHeaderFields();
-			java.util.Set<String> hdrKeys = hdrs.keySet();
-		    	for (String k : hdrKeys) {
-		      		logger.debug("Response Header: " + k + "  Value: " + hdrs.get(k));
-			}
-            		is = connection.getInputStream();
-		} catch (IOException ioerrexcp) {
-			InputStream erris = null;
-			try {
-				erris = connection.getErrorStream();
-				java.util.Scanner errscn = new java.util.Scanner(erris).useDelimiter("\\A");
-    				String errbody = errscn.hasNext() ? errscn.next() : "";
-				logger.error("IOException when reading connection input stream: " + errbody + "; " + ioerrexcp);
-				throw ioerrexcp;
-			} finally {
-				if (erris != null) {
-			                try {
-                 			   erris.close();
-                			} catch (IOException e) {
-                			}
-				}
-			}
-		}
+            try {
+                logResponseHeaders(connection);
+                is = connection.getInputStream();
+            } catch (IOException ioerrexcp) {
+                return logErrorResponse(connection, ioerrexcp);
+            }
+
             if ("gzip".equals(ce)) {
-              is = new GZIPInputStream(is);
-	          }
+                is = new GZIPInputStream(is);
+            }
             return toString(is);
         } finally {
             if (os != null) {
@@ -198,6 +187,23 @@ public class SimpleHttp {
                 } catch (Exception e) {
                 }
             }
+        }
+    }
+
+    private String logErrorResponse(HttpURLConnection connection, IOException ioerrexcp) throws IOException {
+        try (final InputStream erris = connection.getErrorStream()) {
+            Scanner errscn = new Scanner(erris).useDelimiter("\\A");
+            String errbody = errscn.hasNext() ? errscn.next() : "";
+            logger.error("IOException when reading connection input stream: " + errbody, ioerrexcp);
+            throw ioerrexcp;
+        }
+    }
+
+    private void logResponseHeaders(HttpURLConnection connection) {
+        Map<String, List<String>> headers = connection.getHeaderFields();
+        Set<String> hdrKeys = headers.keySet();
+        for (String k : hdrKeys) {
+            logger.debugf("Response Header: %s = %s", k, headers.get(k));
         }
     }
 

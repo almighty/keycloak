@@ -139,6 +139,9 @@ public class SimpleHttp {
                 connection.setRequestProperty("Content-Length", String.valueOf(data.length()));
 
                 os = connection.getOutputStream();
+		
+		logger.debug("Request string for url (" + this.url + "): " + data);
+		    
                 os.write(data.getBytes());
             } else {
                 connection.setDoOutput(false);
@@ -146,7 +149,12 @@ public class SimpleHttp {
 
             String ce = connection.getHeaderField("Content-Encoding");
 		try {
-            is = connection.getInputStream();
+			java.util.Map<String, List<String>> hdrs = connection.getHeaderFields();
+			java.util.Set<String> hdrKeys = hdrs.keySet();
+		    	for (String k : hdrKeys) {
+		      		logger.debug("Header: " + k + "  Value: " + hdrs.get(k));
+			}
+            		is = connection.getInputStream();
 		} catch (IOException ioerrexcp) {
 			InputStream erris = null;
 			try {

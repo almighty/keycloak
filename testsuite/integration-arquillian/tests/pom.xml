@@ -136,6 +136,24 @@
                                 </resources>
                             </configuration>
                         </execution>
+                        <execution>
+                            <id>copy-truststore</id>
+                            <phase>generate-resources</phase>
+                            <goals>
+                                <goal>copy-resources</goal>
+                            </goals>
+                            <configuration>
+                                <outputDirectory>${project.build.directory}/dependency</outputDirectory>
+                                <resources>
+                                    <resource>
+                                        <directory>src/test/resources</directory>
+                                        <includes>
+                                            <include>keystore/keycloak.truststore</include>
+                                        </includes>
+                                    </resource>
+                                </resources>
+                            </configuration>
+                        </execution>
                     </executions>
                 </plugin>
                 <plugin>
@@ -489,6 +507,46 @@
                         </plugin>
                     </plugins>
                 </pluginManagement>
+            </build>
+        </profile>
+        
+        <profile>
+            <id>jdbc-driver-dependency</id>
+            <activation>
+                <property>
+                    <name>jdbc.mvn.artifactId</name>
+                </property>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>${jdbc.mvn.groupId}</groupId>
+                    <artifactId>${jdbc.mvn.artifactId}</artifactId>
+                    <version>${jdbc.mvn.version}</version>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-enforcer-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>enforce</goal>
+                                </goals>
+                                <configuration>
+                                    <rules>
+                                        <requireProperty>
+                                            <property>jdbc.mvn.groupId</property>
+                                        </requireProperty>
+                                        <requireProperty>
+                                            <property>jdbc.mvn.version</property>
+                                        </requireProperty>
+                                    </rules>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
             </build>
         </profile>
 
@@ -894,10 +952,10 @@
 
                 <!-- CLI -->
                 <!--
-                   - This dependency must come after org.bouncycastle dependencies since it contains BC classes,
-                   - and MAC signature check on classes would fail otherwise with:
-                   - 'java.lang.SecurityException: JCE cannot authenticate the provider BC'
-                 -->
+                  - This dependency must come after org.bouncycastle dependencies since it contains BC classes,
+                  - and MAC signature check on classes would fail otherwise with:
+                  - 'java.lang.SecurityException: JCE cannot authenticate the provider BC'
+                -->
                 <dependency>
                     <groupId>org.keycloak</groupId>
                     <artifactId>keycloak-client-cli-dist</artifactId>

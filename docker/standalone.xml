@@ -53,6 +53,7 @@
                     </ssl>
                 </server-identities>
             </security-realm>
+            <!--   xxxxxxxxxxxxxxxxxxxxxxxxx   -->
         </security-realms>
         <audit-log>
             <formatters>
@@ -85,7 +86,9 @@
     <profile>
         <subsystem xmlns="urn:jboss:domain:logging:3.0">
             <console-handler name="CONSOLE">
-                <level name="INFO"/>
+                <!-- Modified by Almighty keycloak team -->
+                <level name="${env.KEYCLOAK_LOGLEVEL:INFO}"/>
+                <!--   xxxxxxxxxxxxxxxxxxxxxxxxx   -->
                 <formatter>
                     <named-formatter name="COLOR-PATTERN"/>
                 </formatter>
@@ -107,8 +110,15 @@
             <logger category="sun.rmi">
                 <level name="WARN"/>
             </logger>
-            <root-logger>
+            <!-- Added by Almighty keycloak team -->
+            <logger category="org.hibernate">
                 <level name="INFO"/>
+            </logger>
+            <!--   xxxxxxxxxxxxxxxxxxxxxxxxx   -->
+            <root-logger>
+                <!-- Modified by Almighty keycloak team -->
+                <level name="${env.KEYCLOAK_LOGLEVEL:INFO}"/>
+                <!--   xxxxxxxxxxxxxxxxxxxxxxxxx   -->
                 <handlers>
                     <handler name="CONSOLE"/>
                     <handler name="FILE"/>
@@ -374,6 +384,7 @@
                 </host>
                 <!-- Added by Almighty keycloak team -->
                 <https-listener name="https" socket-binding="https" security-realm="UndertowRealm"/>
+                <!--   xxxxxxxxxxxxxxxxxxxxxxxxx   -->
             </server>
             <servlet-container name="default">
                 <jsp-config/>

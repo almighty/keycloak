@@ -45,7 +45,7 @@
                     <properties path="application-roles.properties" relative-to="jboss.server.config.dir"/>
                 </authorization>
             </security-realm>
-            <!-- Added by Almighty keycloak team -->
+            <!-- Added by openshift.io keycloak team -->
             <security-realm name="UndertowRealm">
                 <server-identities>
                     <ssl>
@@ -86,7 +86,7 @@
     <profile>
         <subsystem xmlns="urn:jboss:domain:logging:3.0">
             <console-handler name="CONSOLE">
-                <!-- Modified by Almighty keycloak team -->
+                <!-- Modified by openshift.io keycloak team -->
                 <level name="${env.KEYCLOAK_LOGLEVEL:INFO}"/>
                 <!--   xxxxxxxxxxxxxxxxxxxxxxxxx   -->
                 <formatter>
@@ -110,13 +110,13 @@
             <logger category="sun.rmi">
                 <level name="WARN"/>
             </logger>
-            <!-- Added by Almighty keycloak team -->
+            <!-- Added by openshift.io keycloak team -->
             <logger category="org.hibernate">
                 <level name="INFO"/>
             </logger>
             <!--   xxxxxxxxxxxxxxxxxxxxxxxxx   -->
             <root-logger>
-                <!-- Modified by Almighty keycloak team -->
+                <!-- Modified by openshift.io keycloak team -->
                 <level name="${env.KEYCLOAK_LOGLEVEL:INFO}"/>
                 <!--   xxxxxxxxxxxxxxxxxxxxxxxxx   -->
                 <handlers>
@@ -382,7 +382,7 @@
                     <filter-ref name="server-header"/>
                     <filter-ref name="x-powered-by-header"/>
                 </host>
-                <!-- Added by Almighty keycloak team -->
+                <!-- Added by openshift.io keycloak team -->
                 <https-listener name="https" socket-binding="https" security-realm="UndertowRealm"/>
                 <!--   xxxxxxxxxxxxxxxxxxxxxxxxx   -->
             </server>

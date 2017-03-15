@@ -53,10 +53,6 @@ function build() {
   echo 'CICO: Run mv clean install -DskipTests=true -Pdistribution'
   mvn clean install -DskipTests=true -Pdistribution
 
-  echo 'CICO: Listing the directory server-dist'
-  ls distribution/server-dist/
-  echo 'CICO: Listing the directory target'
-  ls distribution/server-dist/target
   echo 'CICO: keycloak-server build completed successfully!'
 }
 

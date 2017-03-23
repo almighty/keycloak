@@ -42,4 +42,4 @@ else
   echo "Starting keycloak-server on standalone mode..."
   exec /opt/jboss/keycloak/bin/standalone.sh $@
 fi
-fiexit $?
+exit $?

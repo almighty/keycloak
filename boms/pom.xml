@@ -19,18 +19,29 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>keycloak-parent</artifactId>
-        <groupId>org.keycloak</groupId>
-        <version>3.0.0.CR1-SNAPSHOT</version>
+        <groupId>org.jboss</groupId>
+        <artifactId>jboss-parent</artifactId>
+        <version>19</version>
     </parent>
 
     <groupId>org.keycloak.bom</groupId>
     <artifactId>keycloak-bom-parent</artifactId>
+    <version>3.0.0.Final</version>
 
     <packaging>pom</packaging>
 
     <name>Keycloak BOM Parent</name>
     <description>Keycloak BOM Parent</description>
+
+    <url>http://keycloak.org</url>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
 
     <modules>
         <module>adapter</module>

@@ -144,12 +144,7 @@ public class LoginPage extends AbstractPage {
 
 
     public boolean isCurrent() {
-        String realm = "test";
-        return isCurrent(realm);
-    }
-
-    public boolean isCurrent(String realm) {
-        return driver.getTitle().equals("Log in to " + realm) || driver.getTitle().equals("Anmeldung bei " + realm);
+        return driver.getTitle().equals("Log in to test") || driver.getTitle().equals("Anmeldung bei test");
     }
 
     public void clickRegister() {

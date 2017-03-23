@@ -113,10 +113,7 @@ public enum EventType {
     CLIENT_UPDATE(true),
     CLIENT_UPDATE_ERROR(true),
     CLIENT_DELETE(true),
-    CLIENT_DELETE_ERROR(true),
-
-    CLIENT_INITIATED_ACCOUNT_LINKING(true),
-    CLIENT_INITIATED_ACCOUNT_LINKING_ERROR(true);
+    CLIENT_DELETE_ERROR(true);
 
     private boolean saveByDefault;
 

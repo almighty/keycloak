@@ -5,7 +5,7 @@ MAINTAINER Hector Fernandez <hfernand@redhat.com>
 # ensuring clean shutdown when container is stopped.
 ENV LAUNCH_JBOSS_IN_BACKGROUND 1
 
-ENV KEYCLOAK_VERSION 3.0.0.CR1-SNAPSHOT
+ENV KEYCLOAK_VERSION 3.0.0.Final
 ENV OPERATING_MODE clustered
 
 ENV OSO_ADDRESS tsrv.devshift.net:8443

@@ -47,7 +47,7 @@ RUN java -jar /usr/share/java/saxon.jar -s:/opt/jboss/keycloak/standalone/config
 RUN mkdir -p /opt/jboss/keycloak/modules/system/layers/base/org/postgresql/jdbc/main; cd /opt/jboss/keycloak/modules/system/layers/base/org/postgresql/jdbc/main; curl -O http://central.maven.org/maven2/org/postgresql/postgresql/9.3-1102-jdbc3/postgresql-9.3-1102-jdbc3.jar
 ADD module.xml /opt/jboss/keycloak/modules/system/layers/base/org/postgresql/jdbc/main/
 
-EXPOSE 8080
+EXPOSE 8443
 ENTRYPOINT [ "/opt/jboss/docker-entrypoint.sh" ]
 
 CMD ["--debug", "-b", "0.0.0.0"]

@@ -36,7 +36,7 @@ fi
 
 if [[ "${OPERATING_MODE}" == "clustered" ]]; then
   echo "Starting keycloak-server on clustered mode..."
-  exec /opt/jboss/keycloak/bin/standalone.sh --server-config=standalone-ha.xml -bmanagement=$INTERNAL_POD_IP -bprivate=$INTERNAL_POD_IP -b $INTERNAL_POD_IP -Djgroups.bind_addr=global -Djboss.node.name=$INTERNAL_POD_IP $@
+  exec /opt/jboss/keycloak/bin/standalone.sh --server-config=standalone-ha.xml -bmanagement=$INTERNAL_POD_IP -bprivate=$INTERNAL_POD_IP $@
 else
   echo "Starting keycloak-server on standalone mode..."
   exec /opt/jboss/keycloak/bin/standalone.sh $@

@@ -28,6 +28,13 @@ objects:
         containers:
         - name: keycloak-server
           image: registry.devshift.net/almighty/keycloak-postgres
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+            - containerPort: 7600
+              protocol: TCP
+            - containerPort: 57600
+              protocol: TCP
           imagePullPolicy: Always
           ports:
           - containerPort: 8080

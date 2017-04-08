@@ -43,18 +43,35 @@
             "containers":[
               {
                 "name":"keycloak-server",
-                "image":"hectorj2f/keycloak-postgres",
+                "image":"hectorj2f/keycloak-ha-postgres",
                 "ports":[
                   {
                     "containerPort":8080,
                     "protocol":"TCP"
                   },
                   {
-                    "containerPort":8443,
+                    "containerPort":7600,
+                    "protocol":"TCP"
+                  },
+                  {
+                    "containerPort":57600,
                     "protocol":"TCP"
                   }
                 ],
+                "args": [
+                  "-b $(INTERNAL_POD_IP)",
+                  "-Djgroups.bind_addr=global",
+                  "-Djboss.node.name=$(INTERNAL_POD_IP)"
+                ],
                 "env":[
+                  {
+                    "name":"INTERNAL_POD_IP",
+                    "valueFrom": {
+                       "fieldRef": {
+                          "fieldPath": "status.podIP"
+                       }
+                    }
+                  },
                   {
                     "name":"KEYCLOAK_USER",
                     "value":"admin"

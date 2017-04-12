@@ -60,7 +60,6 @@ ADD module.xml /opt/jboss/keycloak/modules/system/layers/base/org/postgresql/jdb
 RUN sed -ie 's@\(</dependencies>\)@    <module name="org.postgresql.jdbc"/>\n    \1@' /opt/jboss/keycloak/modules/system/layers/base/org/jgroups/main/module.xml
 
 EXPOSE 8080
-# ENTRYPOINT [ "/opt/jboss/docker-entrypoint.sh" ]
 ENTRYPOINT [ "/keycloak+pmcd.sh" ]
 
 CMD ["--debug", "-b", "0.0.0.0"]

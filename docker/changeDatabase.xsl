@@ -10,6 +10,11 @@
         <ds:datasource jndi-name="java:jboss/datasources/KeycloakDS" enabled="true" use-java-context="true" pool-name="KeycloakDS" use-ccm="true">
             <ds:connection-url>jdbc:postgresql://${env.POSTGRES_PORT_5432_TCP_ADDR}:${env.POSTGRES_PORT_5432_TCP_PORT:5432}/${env.POSTGRES_DATABASE:keycloak}</ds:connection-url>
             <ds:driver>postgresql</ds:driver>
+            <ds:pool>
+              <ds:min-pool-size>${env.POSTGRES_MIN_POOL_SIZE:30}</ds:min-pool-size>
+              <ds:max-pool-size>${env.POSTGRES_MAX_POOL_SIZE:100}</ds:max-pool-size>
+              <ds:flush-strategy>${env.POSTGRES_FLUSH_STRATEGY:IdleConnections}</ds:flush-strategy>
+            </ds:pool>
             <ds:security>
               <ds:user-name>${env.POSTGRES_USER:keycloak}</ds:user-name>
               <ds:password>${env.POSTGRES_PASSWORD:password}</ds:password>
@@ -41,4 +46,3 @@
     </xsl:template>
 
 </xsl:stylesheet>
-

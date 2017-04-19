@@ -49,6 +49,5 @@
       <xsl:apply-templates select="@*|node()"/>
     </xsl:copy>
   </xsl:template>
->>>>>>> Stashed changes
 
 </xsl:stylesheet>

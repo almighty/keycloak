@@ -22,6 +22,7 @@
         <ds:check-valid-connection-sql>SELECT 1</ds:check-valid-connection-sql>
         <ds:background-validation>true</ds:background-validation>
         <ds:background-validation-millis>60000</ds:background-validation-millis>
+        <ds:use-fast-fail>${env.POSTGRESS_VALIDATION_FAIL_FAST:true}</ds:use-fast-fail>
       </ds:validation>
       <ds:timeout>
         <ds:blocking-timeout-millis>30000</ds:blocking-timeout-millis>

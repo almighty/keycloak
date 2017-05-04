@@ -16,7 +16,7 @@ objects:
     triggers:
     - type: ConfigChange
     test: false
-    replicas: 1
+    replicas: 2
     selector:
       name: keycloak-server
     template:
@@ -130,6 +130,8 @@ objects:
               -Djava.net.preferIPv4Stack=true
               -Djboss.modules.system.pkgs=org.jboss.byteman
               -Djava.awt.headless=true
+          - name: OPERATING_MODE
+            value: clustered
         restartPolicy: Always
         securityContext: {}
         terminationGracePeriodSeconds: 30

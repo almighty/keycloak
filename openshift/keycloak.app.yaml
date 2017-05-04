@@ -16,7 +16,7 @@ objects:
     - ReadWriteOnce
     resources:
       requests:
-        storage: 1Gi
+        storage: 4Gi
   status: {}
 - kind: DeploymentConfig
   apiVersion: v1

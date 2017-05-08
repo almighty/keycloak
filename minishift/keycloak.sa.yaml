@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: keycloak
+---
+apiVersion: v1
+kind: RoleBinding
+metadata:
+  name: keycloak
+roleRef:
+  name: view
+subjects:
+- kind: ServiceAccount
+  name: keycloak
+---

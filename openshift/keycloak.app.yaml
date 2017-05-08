@@ -52,7 +52,7 @@ objects:
           imagePullPolicy: Always
           volumeMounts:
             - mountPath: "/opt/jboss/keycloak/heapdumppath"
-              name: heapdumppath
+              name: heapdumps
           resources: {}
           livenessProbe:
             httpGet:
@@ -140,7 +140,7 @@ objects:
         terminationGracePeriodSeconds: 30
         dnsPolicy: ClusterFirst
         volumes:
-          - name: heapdumppath
+          - name: heapdumps
             persistentVolumeClaim:
               claimName: keycloak-heap-dump
   status: {}

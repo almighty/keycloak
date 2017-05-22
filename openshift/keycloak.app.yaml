@@ -30,7 +30,7 @@ objects:
     triggers:
     - type: ConfigChange
     test: false
-    replicas: 1
+    replicas: 2
     selector:
       name: keycloak-server
     template:
@@ -48,6 +48,12 @@ objects:
             - '-Djboss.node.name=$(INTERNAL_POD_IP)'
           ports:
             - containerPort: 8080
+              protocol: TCP
+            - containerPort: 7600
+              protocol: TCP
+            - containerPort: 47600
+              protocol: TCP
+            - containerPort: 57600
               protocol: TCP
           imagePullPolicy: Always
           volumeMounts:
@@ -120,9 +126,17 @@ objects:
               secretKeyRef:
                 name: keycloak-config
                 key: db.port
+          - name: OPENSHIFT_KUBE_PING_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          - name: OPENSHIFT_KUBE_PING_LABELS
+            value: 'name=keycloak-server'
+          - name: OPENSHIFT_KUBE_PING_SERVER_PORT
+            value: '47600'
           - name: JAVA_OPTS
             value: >-
-              -server -Xms256m -Xmx4096m -XX:MetaspaceSize=96M
+              -server -Xms256m -Xmx3584m -XX:MetaspaceSize=96M
               -XX:+HeapDumpOnOutOfMemoryError
               -XX:HeapDumpPath=/opt/jboss/keycloak/heapdumppath
               -XX:+UseParallelGC
@@ -135,6 +149,8 @@ objects:
               -Djava.net.preferIPv4Stack=true
               -Djboss.modules.system.pkgs=org.jboss.byteman
               -Djava.awt.headless=true
+          - name: OPERATING_MODE
+            value: clustered
         restartPolicy: Always
         securityContext: {}
         terminationGracePeriodSeconds: 30

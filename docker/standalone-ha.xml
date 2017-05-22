@@ -95,14 +95,6 @@
                     <named-formatter name="COLOR-PATTERN"/>
                 </formatter>
             </console-handler>
-            <periodic-rotating-file-handler name="FILE" autoflush="true">
-                <formatter>
-                    <named-formatter name="PATTERN"/>
-                </formatter>
-                <file relative-to="jboss.server.log.dir" path="server.log"/>
-                <suffix value=".yyyy-MM-dd"/>
-                <append value="true"/>
-            </periodic-rotating-file-handler>
             <logger category="com.arjuna">
                 <level name="WARN"/>
             </logger>
@@ -114,7 +106,7 @@
             </logger>
             <!-- Added by openshift.io keycloak team -->
             <logger category="org.hibernate">
-                <level name="INFO"/>
+                <level name="WARN"/>
             </logger>
             <!--   xxxxxxxxxxxxxxxxxxxxxxxxx   -->
             <root-logger>
@@ -123,7 +115,6 @@
                 <!--   xxxxxxxxxxxxxxxxxxxxxxxxx   -->
                 <handlers>
                     <handler name="CONSOLE"/>
-                    <handler name="FILE"/>
                 </handlers>
             </root-logger>
             <formatter name="PATTERN">
@@ -136,14 +127,6 @@
         <subsystem xmlns="urn:jboss:domain:bean-validation:1.0"/>
         <subsystem xmlns="urn:jboss:domain:datasources:4.0">
             <datasources>
-                <datasource jndi-name="java:jboss/datasources/ExampleDS" pool-name="ExampleDS" enabled="true" use-java-context="true">
-                    <connection-url>jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE</connection-url>
-                    <driver>h2</driver>
-                    <security>
-                        <user-name>sa</user-name>
-                        <password>sa</password>
-                    </security>
-                </datasource>
                 <datasource jndi-name="java:jboss/datasources/KeycloakDS" pool-name="KeycloakDS" enabled="true" use-java-context="true">
                     <connection-url>jdbc:h2:${jboss.server.data.dir}/keycloak;AUTO_SERVER=TRUE</connection-url>
                     <driver>h2</driver>
@@ -160,7 +143,9 @@
             </datasources>
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:deployment-scanner:2.0">
-            <deployment-scanner path="deployments" relative-to="jboss.server.base.dir" scan-interval="5000" runtime-failure-causes-rollback="${jboss.deployment.scanner.rollback.on.failure:false}"/>
+            <!-- Added and modified by openshift.io keycloak team. We set to scan-interval=0 to allow scanning on startup -->
+            <deployment-scanner path="deployments" relative-to="jboss.server.base.dir" scan-interval="0" runtime-failure-causes-rollback="${jboss.deployment.scanner.rollback.on.failure:false}"/>
+            <!--   xxxxxxxxxxxxxxxxxxxxxxxxx   -->
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:ee:4.0">
             <spec-descriptor-property-replacement>false</spec-descriptor-property-replacement>
@@ -178,7 +163,6 @@
                     <managed-scheduled-executor-service name="default" jndi-name="java:jboss/ee/concurrency/scheduler/default" context-service="default" hung-task-threshold="60000" keepalive-time="3000"/>
                 </managed-scheduled-executor-services>
             </concurrent>
-            <default-bindings context-service="java:jboss/ee/concurrency/context/default" datasource="java:jboss/datasources/ExampleDS" managed-executor-service="java:jboss/ee/concurrency/executor/default" managed-scheduled-executor-service="java:jboss/ee/concurrency/scheduler/default" managed-thread-factory="java:jboss/ee/concurrency/factory/default"/>
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:ejb3:4.0">
             <session-bean>
@@ -220,17 +204,17 @@
             <log-system-exceptions value="true"/>
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:io:1.1">
-            <worker name="default"/>
+            <worker name="default" io-threads="32" task-max-threads="512"/>
             <buffer-pool name="default"/>
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:infinispan:4.0">
             <cache-container name="keycloak" jndi-name="infinispan/Keycloak">
                 <transport lock-timeout="60000"/>
                 <local-cache name="realms">
-                    <eviction max-entries="10000" strategy="LRU"/>
+                    <eviction max-entries="10000" strategy="LIRS"/>
                 </local-cache>
                 <local-cache name="users">
-                    <eviction max-entries="10000" strategy="LRU"/>
+                    <eviction max-entries="10000" strategy="LIRS"/>
                 </local-cache>
                 <distributed-cache name="sessions" mode="SYNC" owners="1"/>
                 <distributed-cache name="offlineSessions" mode="SYNC" owners="1"/>
@@ -238,7 +222,7 @@
                 <distributed-cache name="authorization" mode="SYNC" owners="1"/>
                 <replicated-cache name="work" mode="SYNC"/>
                 <local-cache name="keys">
-                    <eviction max-entries="1000" strategy="LRU"/>
+                    <eviction max-entries="1000" strategy="LIRS"/>
                     <expiration max-idle="3600000"/>
                 </local-cache>
             </cache-container>
@@ -267,12 +251,12 @@
             <cache-container name="hibernate" default-cache="local-query" module="org.hibernate.infinispan">
                 <transport lock-timeout="60000"/>
                 <local-cache name="local-query">
-                    <eviction strategy="LRU" max-entries="10000"/>
+                    <eviction strategy="LIRS" max-entries="10000"/>
                     <expiration max-idle="100000"/>
                 </local-cache>
                 <invalidation-cache name="entity" mode="SYNC">
                     <transaction mode="NON_XA"/>
-                    <eviction strategy="LRU" max-entries="10000"/>
+                    <eviction strategy="LIRS" max-entries="10000"/>
                     <expiration max-idle="100000"/>
                 </invalidation-cache>
                 <replicated-cache name="timestamps" mode="ASYNC"/>
@@ -301,35 +285,24 @@
         <subsystem xmlns="urn:jboss:domain:jdr:1.0"/>
         <subsystem xmlns="urn:jboss:domain:jgroups:4.0">
           <!-- Added and modified by openshift.io keycloak team -->
-            <channels default="ee">
-                <channel name="ee" stack="tcp"/>
+            <channels default="kubernetes">
+                <channel name="kubernetes" stack="tcp"/>
             </channels>
             <stacks default="tcp">
                 <stack name="tcp">
                     <transport type="TCP" socket-binding="jgroups-tcp">
                       <property name="external_addr">${env.INTERNAL_POD_IP}</property>
                     </transport>
-                    <protocol type="JDBC_PING">
-                     <property name="connection_driver">org.postgresql.Driver</property>
-                     <property name="connection_url">jdbc:postgresql://${env.POSTGRES_PORT_5432_TCP_ADDR}:${env.POSTGRES_PORT_5432_TCP_PORT:5432}/${env.POSTGRES_DATABASE:keycloak}</property>
-                     <property name="connection_username">${env.POSTGRES_USER}</property>
-                     <property name="connection_password">${env.POSTGRES_PASSWORD}</property>
-                     <property name="initialize_sql">
-                     CREATE TABLE IF NOT EXISTS jgroupsping (
-                     own_addr VARCHAR(200) NOT NULL,
-                     cluster_name VARCHAR(200) NOT NULL,
-                     ping_data BYTEA DEFAULT NULL,
-                     PRIMARY KEY (own_addr, cluster_name)
-                     )
-                     </property>
-                   </protocol>
+                    <protocol type="kubernetes.KUBE_PING" />
                     <protocol type="MERGE3"/>
                     <protocol type="FD_SOCK" socket-binding="jgroups-tcp-fd">
                       <property name="external_addr">${env.INTERNAL_POD_IP}</property>
                     </protocol>
-                    <protocol type="FD"/>
+                    <protocol type="FD_ALL" />
                     <protocol type="VERIFY_SUSPECT"/>
-                    <protocol type="pbcast.NAKACK2"/>
+                    <protocol type="pbcast.NAKACK2">
+                        <property name="use_mcast_xmit">false</property>
+                    </protocol>
                     <protocol type="UNICAST3"/>
                     <protocol type="pbcast.STABLE"/>
                     <protocol type="pbcast.GMS"/>
@@ -420,7 +393,9 @@
             <server name="default-server">
                 <ajp-listener name="ajp" socket-binding="ajp"/>
                 <!-- proxy-address-forwarding="true" added and redirect-socket="proxy-https" changed by openshift.io keycloak team -->
-                <http-listener name="default" socket-binding="http" redirect-socket="proxy-https" proxy-address-forwarding="true"/>
+                <http-listener name="default" socket-binding="http" redirect-socket="proxy-https" proxy-address-forwarding="true"
+                               no-request-timeout="25000" request-parse-timeout="25000"
+                               tcp-keep-alive="true" read-timeout="60000"/>
                 <!--   xxxxxxxxxxxxxxxxxxxxxxxxx   -->
                 <host name="default-host" alias="localhost">
                     <location name="/" handler="welcome-content"/>
@@ -428,7 +403,9 @@
                     <filter-ref name="x-powered-by-header"/>
                 </host>
                 <!-- Added by openshift.io keycloak team -->
-                <https-listener name="https" socket-binding="https" security-realm="UndertowRealm"/>
+                <https-listener name="https" socket-binding="https" security-realm="UndertowRealm"
+                    no-request-timeout="25000" request-parse-timeout="25000"
+                    tcp-keep-alive="true" read-timeout="60000"/>
                 <!--   xxxxxxxxxxxxxxxxxxxxxxxxx   -->
             </server>
             <servlet-container name="default">

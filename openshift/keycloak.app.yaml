@@ -27,6 +27,9 @@ objects:
   spec:
     strategy:
       type: Rolling
+      resources:
+        limits:
+          memory: 4Gi
     triggers:
     - type: ConfigChange
     test: false

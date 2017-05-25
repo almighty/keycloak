@@ -33,11 +33,6 @@ To build the distribution run:
 Once completed you will find distribution archives in `distribution`.
 
 
-To build a specific distribution (e.g. keycloak-server) run the following command:
-
-    mvn clean install -DskipTests=true -pl :keycloak-server-dist -am -P distribution
-
-
 Starting Keycloak
 -----------------
 

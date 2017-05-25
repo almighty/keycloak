@@ -45,6 +45,10 @@ function install_deps() {
 }
 
 function build() {
+  echo 'CICO: Cloning keycloak source code repo'
+  git clone https://github.com/almighty/keycloak-source.git --branch add_code_from_kc
+  cd keycloak-source
+
   # Set the version according to the ENV variable
   #mvn -q versions:set -DgenerateBackupPoms=false -DnewVersion=$KEYCLOAK_VERSION
   # Only build the keycloak-server to save time
@@ -57,6 +61,8 @@ function build() {
   ls distribution/server-dist/
   echo 'CICO: Listing the directory target'
   ls distribution/server-dist/target
+
+  cd ..
   echo 'CICO: keycloak-server build completed successfully!'
 }
 
@@ -67,7 +73,7 @@ function tag_push() {
 }
 
 function deploy() {
-  cp distribution/server-dist/target/keycloak-$KEYCLOAK_VERSION.tar.gz docker
+  cp keycloak-source/distribution/server-dist/target/keycloak-$KEYCLOAK_VERSION.tar.gz docker
 
   # Let's deploy
   docker build -t $DOCKER_IMAGE_DEPLOY -f $CURRENT_DIR/docker/Dockerfile $CURRENT_DIR/docker

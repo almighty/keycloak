@@ -614,6 +614,18 @@ public class RepresentationToModel {
             }
         }
 
+        // Added in 3.2
+        if (rep.getDockerAuthenticationFlow() == null) {
+            AuthenticationFlowModel dockerAuthenticationFlow = newRealm.getFlowByAlias(DefaultAuthenticationFlows.DOCKER_AUTH);
+            if (dockerAuthenticationFlow == null) {
+                DefaultAuthenticationFlows.dockerAuthenticationFlow(newRealm);
+            } else {
+                newRealm.setDockerAuthenticationFlow(dockerAuthenticationFlow);
+            }
+        } else {
+            newRealm.setDockerAuthenticationFlow(newRealm.getFlowByAlias(rep.getDockerAuthenticationFlow()));
+        }
+
         DefaultAuthenticationFlows.addIdentityProviderAuthenticator(newRealm, defaultProvider);
     }
 
@@ -897,6 +909,9 @@ public class RepresentationToModel {
         }
         if (rep.getClientAuthenticationFlow() != null) {
             realm.setClientAuthenticationFlow(realm.getFlowByAlias(rep.getClientAuthenticationFlow()));
+        }
+        if (rep.getDockerAuthenticationFlow() != null) {
+            realm.setDockerAuthenticationFlow(realm.getFlowByAlias(rep.getDockerAuthenticationFlow()));
         }
     }
 
@@ -1201,6 +1216,7 @@ public class RepresentationToModel {
         if (rep.isUseTemplateScope() != null) resource.setUseTemplateScope(rep.isUseTemplateScope());
         if (rep.isUseTemplateMappers() != null) resource.setUseTemplateMappers(rep.isUseTemplateMappers());
 
+        if (rep.getSecret() != null) resource.setSecret(rep.getSecret());
 
         if (rep.getClientTemplate() != null) {
             if (rep.getClientTemplate().equals(ClientTemplateRepresentation.NONE)) {
@@ -2171,13 +2187,13 @@ public class RepresentationToModel {
     private static void updateResources(Set<String> resourceIds, Policy policy, StoreFactory storeFactory) {
         if (resourceIds != null) {
             if (resourceIds.isEmpty()) {
-                for (Scope scope : new HashSet<Scope>(policy.getScopes())) {
-                    policy.removeScope(scope);
+                for (Resource resource : new HashSet<>(policy.getResources())) {
+                    policy.removeResource(resource);
                 }
             }
             for (String resourceId : resourceIds) {
                 boolean hasResource = false;
-                for (Resource resourceModel : new HashSet<Resource>(policy.getResources())) {
+                for (Resource resourceModel : new HashSet<>(policy.getResources())) {
                     if (resourceModel.getId().equals(resourceId) || resourceModel.getName().equals(resourceId)) {
                         hasResource = true;
                     }
@@ -2196,7 +2212,7 @@ public class RepresentationToModel {
                 }
             }
 
-            for (Resource resourceModel : new HashSet<Resource>(policy.getResources())) {
+            for (Resource resourceModel : new HashSet<>(policy.getResources())) {
                 boolean hasResource = false;
 
                 for (String resourceId : resourceIds) {

@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.keycloak.testsuite</groupId>
         <artifactId>integration-arquillian-tests</artifactId>
-        <version>3.2.0.CR1-SNAPSHOT</version>
+        <version>3.2.0.Final</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -40,6 +40,7 @@
         <exclude.client>-</exclude.client>
         <!--exclude cluster tests by default, enabled by 'auth-server-*-cluster' profiles in tests/pom.xml-->
         <exclude.cluster>**/cluster/**/*Test.java</exclude.cluster>
+        <exclude.crossdc>**/crossdc/**/*Test.java</exclude.crossdc>
         <!-- exclude x509 tests by default, enabled by 'ssl' profile -->
         <exclude.x509>**/x509/*Test.java</exclude.x509>
         <!-- exclude undertow adapter tests. They can be added by -Dtest=org.keycloak.testsuite.adapter.undertow.**.*Test -->
@@ -87,6 +88,28 @@
             <artifactId>greenmail</artifactId>
             <scope>compile</scope>
         </dependency>
+        <!--<dependency>-->
+            <!--<groupId>com.spotify</groupId>-->
+            <!--<artifactId>docker-client</artifactId>-->
+            <!--<version>8.3.2</version>-->
+            <!--<scope>test</scope>-->
+            <!--<exclusions>-->
+                <!--<exclusion>-->
+                    <!--<groupId>javax.ws.rs</groupId>-->
+                    <!--<artifactId>javax.ws.rs-api</artifactId>-->
+                <!--</exclusion>-->
+                <!--<exclusion>-->
+                    <!--<groupId>com.github.jnr</groupId>-->
+                    <!--<artifactId>jnr-unixsocket</artifactId>-->
+                <!--</exclusion>-->
+            <!--</exclusions>-->
+        <!--</dependency>-->
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+            <version>1.2.1</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     
     <build>
@@ -125,6 +148,7 @@
                         <exclude>${exclude.account}</exclude>
                         <exclude>${exclude.client}</exclude>
                         <exclude>${exclude.cluster}</exclude>
+                        <exclude>${exclude.crossdc}</exclude>
                         <exclude>${exclude.undertow.adapter}</exclude>
                         <exclude>${exclude.x509}</exclude>
                     </excludes>

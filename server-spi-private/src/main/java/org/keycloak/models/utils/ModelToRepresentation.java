@@ -35,6 +35,7 @@ import org.keycloak.authorization.model.ResourceServer;
 import org.keycloak.authorization.model.Scope;
 import org.keycloak.authorization.policy.provider.PolicyProviderFactory;
 import org.keycloak.authorization.store.ResourceStore;
+import org.keycloak.common.Profile;
 import org.keycloak.common.util.MultivaluedHashMap;
 import org.keycloak.common.util.Time;
 import org.keycloak.component.ComponentModel;
@@ -167,7 +168,6 @@ public class ModelToRepresentation {
         rep.setSubGroups(subGroups);
         return rep;
     }
-
 
     public static UserRepresentation toRepresentation(KeycloakSession session, RealmModel realm, UserModel user) {
         UserRepresentation rep = new UserRepresentation();
@@ -326,6 +326,7 @@ public class ModelToRepresentation {
         if (realm.getDirectGrantFlow() != null) rep.setDirectGrantFlow(realm.getDirectGrantFlow().getAlias());
         if (realm.getResetCredentialsFlow() != null) rep.setResetCredentialsFlow(realm.getResetCredentialsFlow().getAlias());
         if (realm.getClientAuthenticationFlow() != null) rep.setClientAuthenticationFlow(realm.getClientAuthenticationFlow().getAlias());
+        if (realm.getDockerAuthenticationFlow() != null) rep.setDockerAuthenticationFlow(realm.getDockerAuthenticationFlow().getAlias());
 
         List<String> defaultRoles = realm.getDefaultRoles();
         if (!defaultRoles.isEmpty()) {
@@ -772,11 +773,7 @@ public class ModelToRepresentation {
         return rep;
     }
 
-    public static ScopeRepresentation toRepresentation(Scope model, AuthorizationProvider authorizationProvider) {
-        return toRepresentation(model, authorizationProvider, true);
-    }
-
-    public static ScopeRepresentation toRepresentation(Scope model, AuthorizationProvider authorizationProvider, boolean deep) {
+    public static ScopeRepresentation toRepresentation(Scope model) {
         ScopeRepresentation scope = new ScopeRepresentation();
 
         scope.setId(model.getId());
@@ -799,6 +796,10 @@ public class ModelToRepresentation {
     }
 
     public static <R extends AbstractPolicyRepresentation> R toRepresentation(Policy policy, Class<R> representationType, AuthorizationProvider authorization) {
+        return toRepresentation(policy, representationType, authorization, false);
+    }
+
+    public static <R extends AbstractPolicyRepresentation> R toRepresentation(Policy policy, Class<R> representationType, AuthorizationProvider authorization, boolean export) {
         R representation;
 
         try {
@@ -817,7 +818,11 @@ public class ModelToRepresentation {
         representation.setLogic(policy.getLogic());
 
         if (representation instanceof PolicyRepresentation) {
-            PolicyRepresentation.class.cast(representation).setConfig(policy.getConfig());
+            if (providerFactory != null && export) {
+                providerFactory.onExport(policy, PolicyRepresentation.class.cast(representation), authorization);
+            } else {
+                PolicyRepresentation.class.cast(representation).setConfig(policy.getConfig());
+            }
         } else {
             representation = (R) providerFactory.toRepresentation(policy, representation);
         }

@@ -31,9 +31,9 @@ public class ConcurrentMultivaluedHashMap<K, V> extends ConcurrentHashMap<K, Lis
 {
    public void putSingle(K key, V value)
    {
-      List<V> list = createListInstance();
+      List<V> list = new CopyOnWriteArrayList<>();
       list.add(value);
-      put(key, list); // Just override with new List instance
+      put(key, list);
    }
 
    public void addAll(K key, V... newValues)
@@ -84,15 +84,8 @@ public class ConcurrentMultivaluedHashMap<K, V> extends ConcurrentHashMap<K, Lis
    public final List<V> getList(K key)
    {
       List<V> list = get(key);
-
-      if (list == null) {
-         list = createListInstance();
-         List<V> existing = putIfAbsent(key, list);
-         if (existing != null) {
-            list = existing;
-         }
-      }
-
+      if (list == null)
+         put(key, list = new CopyOnWriteArrayList<V>());
       return list;
    }
 
@@ -102,10 +95,6 @@ public class ConcurrentMultivaluedHashMap<K, V> extends ConcurrentHashMap<K, Lis
       {
          getList(entry.getKey()).addAll(entry.getValue());
       }
-   }
-
-   protected List<V> createListInstance() {
-      return new CopyOnWriteArrayList<>();
    }
 
 }

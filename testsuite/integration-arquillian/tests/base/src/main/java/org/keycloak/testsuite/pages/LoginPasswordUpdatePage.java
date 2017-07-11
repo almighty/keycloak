@@ -22,7 +22,7 @@ import org.openqa.selenium.support.FindBy;
 /**
  * @author <a href="mailto:sthorger@redhat.com">Stian Thorgersen</a>
  */
-public class LoginPasswordUpdatePage extends LanguageComboboxAwarePage {
+public class LoginPasswordUpdatePage extends AbstractPage {
 
     @FindBy(id = "password-new")
     private WebElement newPasswordInput;

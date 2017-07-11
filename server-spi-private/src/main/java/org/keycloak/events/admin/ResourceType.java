@@ -156,25 +156,5 @@ public enum ResourceType {
     /**
      *
      */
-    , COMPONENT
-
-    /**
-     *
-     */
-    , AUTHORIZATION_RESOURCE_SERVER
-
-    /**
-     *
-     */
-    , AUTHORIZATION_RESOURCE
-
-    /**
-     *
-     */
-    , AUTHORIZATION_SCOPE
-
-    /**
-     *
-     */
-    , AUTHORIZATION_POLICY;
+    , COMPONENT;
 }

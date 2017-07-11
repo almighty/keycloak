@@ -137,13 +137,9 @@ public class RequiredActionContextResult implements RequiredActionContext {
         ClientModel client = authenticationSession.getClient();
         return LoginActionsService.requiredActionProcessor(getUriInfo())
                 .queryParam(OAuth2Constants.CODE, code)
-                .queryParam(Constants.EXECUTION, getExecution())
+                .queryParam(Constants.EXECUTION, factory.getId())
                 .queryParam(Constants.CLIENT_ID, client.getClientId())
                 .build(getRealm().getName());
-    }
-
-    private String getExecution() {
-        return factory.getId();
     }
 
     @Override
@@ -168,7 +164,6 @@ public class RequiredActionContextResult implements RequiredActionContext {
         LoginFormsProvider provider = getSession().getProvider(LoginFormsProvider.class)
                 .setUser(getUser())
                 .setActionUri(action)
-                .setExecution(getExecution())
                 .setClientSessionCode(accessCode);
         return provider;
     }

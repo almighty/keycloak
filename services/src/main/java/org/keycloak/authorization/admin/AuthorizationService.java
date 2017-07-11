@@ -23,7 +23,6 @@ import org.keycloak.authorization.AuthorizationProvider;
 import org.keycloak.authorization.model.ResourceServer;
 import org.keycloak.models.ClientModel;
 import org.keycloak.models.KeycloakSession;
-import org.keycloak.services.resources.admin.AdminEventBuilder;
 import org.keycloak.services.resources.admin.RealmAuth;
 
 import javax.ws.rs.Path;
@@ -35,14 +34,14 @@ public class AuthorizationService {
 
     private final RealmAuth auth;
     private final ClientModel client;
+    private final KeycloakSession session;
     private final ResourceServer resourceServer;
     private final AuthorizationProvider authorization;
-    private final AdminEventBuilder adminEvent;
 
-    public AuthorizationService(KeycloakSession session, ClientModel client, RealmAuth auth, AdminEventBuilder adminEvent) {
+    public AuthorizationService(KeycloakSession session, ClientModel client, RealmAuth auth) {
+        this.session = session;
         this.client = client;
         this.authorization = session.getProvider(AuthorizationProvider.class);
-        this.adminEvent = adminEvent;
         this.resourceServer = this.authorization.getStoreFactory().getResourceServerStore().findByClient(this.client.getId());
         this.auth = auth;
 
@@ -53,16 +52,16 @@ public class AuthorizationService {
 
     @Path("/resource-server")
     public ResourceServerService resourceServer() {
-        ResourceServerService resource = new ResourceServerService(this.authorization, this.resourceServer, this.client, this.auth, adminEvent);
+        ResourceServerService resource = new ResourceServerService(this.authorization, this.resourceServer, this.client, this.auth);
 
         ResteasyProviderFactory.getInstance().injectProperties(resource);
 
         return resource;
     }
 
-    public void enable(boolean newClient) {
+    public void enable() {
         if (!isEnabled()) {
-            resourceServer().create(newClient);
+            resourceServer().create();
         }
     }
 

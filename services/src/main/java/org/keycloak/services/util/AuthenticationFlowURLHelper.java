@@ -58,7 +58,6 @@ public class AuthenticationFlowURLHelper {
 
         return session.getProvider(LoginFormsProvider.class)
                 .setActionUri(lastStepUrl)
-                .setExecution(getExecutionId(authSession))
                 .createLoginExpiredPage();
     }
 
@@ -77,7 +76,7 @@ public class AuthenticationFlowURLHelper {
 
 
     public URI getLastExecutionUrl(AuthenticationSessionModel authSession) {
-        String executionId = getExecutionId(authSession);
+        String executionId = authSession.getAuthNote(AuthenticationProcessor.CURRENT_AUTHENTICATION_EXECUTION);
         String latestFlowPath = authSession.getAuthNote(AuthenticationProcessor.CURRENT_FLOW_PATH);
 
         if (latestFlowPath == null) {
@@ -89,10 +88,6 @@ public class AuthenticationFlowURLHelper {
         }
 
         return getLastExecutionUrl(latestFlowPath, executionId, authSession.getClient().getClientId());
-    }
-
-    private String getExecutionId(AuthenticationSessionModel authSession) {
-        return authSession.getAuthNote(AuthenticationProcessor.CURRENT_AUTHENTICATION_EXECUTION);
     }
 
 }

@@ -17,44 +17,43 @@
  */
 package org.keycloak.authorization.policy.provider.js;
 
-import java.util.function.BiFunction;
+import java.util.function.Supplier;
 
-import org.keycloak.authorization.AuthorizationProvider;
+import javax.script.ScriptEngine;
+import javax.script.ScriptException;
+
 import org.keycloak.authorization.model.Policy;
 import org.keycloak.authorization.policy.evaluation.Evaluation;
 import org.keycloak.authorization.policy.provider.PolicyProvider;
-import org.keycloak.scripting.EvaluatableScriptAdapter;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Igor</a>
  */
-class JSPolicyProvider implements PolicyProvider {
+public class JSPolicyProvider implements PolicyProvider {
 
-    private final BiFunction<AuthorizationProvider, Policy, EvaluatableScriptAdapter> evaluatableScript;
+    private Supplier<ScriptEngine> engineProvider;
 
-    JSPolicyProvider(final BiFunction<AuthorizationProvider, Policy, EvaluatableScriptAdapter> evaluatableScript) {
-        this.evaluatableScript = evaluatableScript;
+    public JSPolicyProvider(Supplier<ScriptEngine> engineProvider) {
+        this.engineProvider = engineProvider;
     }
 
     @Override
     public void evaluate(Evaluation evaluation) {
+        ScriptEngine engine = engineProvider.get();
+
+        engine.put("$evaluation", evaluation);
+
         Policy policy = evaluation.getPolicy();
-        AuthorizationProvider authorization = evaluation.getAuthorizationProvider();
-        final EvaluatableScriptAdapter adapter = evaluatableScript.apply(authorization, policy);
 
         try {
-            //how to deal with long running scripts -> timeout?
-            adapter.eval(bindings -> {
-                bindings.put("script", adapter.getScriptModel());
-                bindings.put("$evaluation", evaluation);
-            });
-        }
-        catch (Exception e) {
+            engine.eval(policy.getConfig().get("code"));
+        } catch (ScriptException e) {
             throw new RuntimeException("Error evaluating JS Policy [" + policy.getName() + "].", e);
         }
     }
 
     @Override
     public void close() {
+
     }
 }

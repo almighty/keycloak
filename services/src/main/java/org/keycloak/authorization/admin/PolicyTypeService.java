@@ -30,7 +30,6 @@ import org.keycloak.authorization.policy.provider.PolicyProviderAdminService;
 import org.keycloak.authorization.policy.provider.PolicyProviderFactory;
 import org.keycloak.models.utils.ModelToRepresentation;
 import org.keycloak.representations.idm.authorization.AbstractPolicyRepresentation;
-import org.keycloak.services.resources.admin.AdminEventBuilder;
 import org.keycloak.services.resources.admin.RealmAuth;
 import org.keycloak.util.JsonSerialization;
 
@@ -41,8 +40,8 @@ public class PolicyTypeService extends PolicyService {
 
     private final String type;
 
-    PolicyTypeService(String type, ResourceServer resourceServer, AuthorizationProvider authorization, RealmAuth auth, AdminEventBuilder adminEvent) {
-        super(resourceServer, authorization, auth, adminEvent);
+    PolicyTypeService(String type, ResourceServer resourceServer, AuthorizationProvider authorization, RealmAuth auth) {
+        super(resourceServer, authorization, auth);
         this.type = type;
     }
 
@@ -61,7 +60,7 @@ public class PolicyTypeService extends PolicyService {
 
     @Override
     protected Object doCreatePolicyResource(Policy policy) {
-        return new PolicyTypeResourceService(policy, resourceServer,authorization, auth, adminEvent);
+        return new PolicyTypeResourceService(policy, resourceServer,authorization, auth);
     }
 
     @Override

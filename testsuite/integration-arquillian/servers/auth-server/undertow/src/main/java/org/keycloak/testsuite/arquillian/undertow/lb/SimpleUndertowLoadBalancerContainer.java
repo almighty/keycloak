@@ -25,14 +25,13 @@ import org.jboss.arquillian.container.spi.client.protocol.metadata.ProtocolMetaD
 import org.jboss.logging.Logger;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.descriptor.api.Descriptor;
-import org.keycloak.testsuite.arquillian.LoadBalancerController;
 
 /**
  * Arquillian container over {@link SimpleUndertowLoadBalancer}
  *
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
-public class SimpleUndertowLoadBalancerContainer implements DeployableContainer<SimpleUndertowLoadBalancerConfiguration>, LoadBalancerController {
+public class SimpleUndertowLoadBalancerContainer implements DeployableContainer<SimpleUndertowLoadBalancerConfiguration> {
 
     private static final Logger log = Logger.getLogger(SimpleUndertowLoadBalancerContainer.class);
 
@@ -84,25 +83,5 @@ public class SimpleUndertowLoadBalancerContainer implements DeployableContainer<
     @Override
     public void undeploy(Descriptor descriptor) throws DeploymentException {
         throw new UnsupportedOperationException("Not implemented");
-    }
-
-    @Override
-    public void enableAllBackendNodes() {
-        this.container.enableAllBackendNodes();
-    }
-
-    @Override
-    public void disableAllBackendNodes() {
-        this.container.disableAllBackendNodes();
-    }
-
-    @Override
-    public void enableBackendNodeByName(String nodeName) {
-        this.container.enableBackendNodeByName(nodeName);
-    }
-
-    @Override
-    public void disableBackendNodeByName(String nodeName) {
-        this.container.disableBackendNodeByName(nodeName);
     }
 }

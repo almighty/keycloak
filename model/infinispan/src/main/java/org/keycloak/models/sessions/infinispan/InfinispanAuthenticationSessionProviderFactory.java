@@ -92,7 +92,7 @@ public class InfinispanAuthenticationSessionProviderFactory implements Authentic
                     ClusterProvider cluster = session.getProvider(ClusterProvider.class);
                     cluster.registerListener(AUTHENTICATION_SESSION_EVENTS, this::updateAuthNotes);
 
-                    log.debugf("[%s] Registered cluster listeners", authSessionsCache.getCacheManager().getAddress());
+                    log.debug("Registered cluster listeners");
                 }
             }
         }

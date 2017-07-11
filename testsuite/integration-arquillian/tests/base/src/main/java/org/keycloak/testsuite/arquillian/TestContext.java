@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.ws.rs.NotFoundException;
 
@@ -55,7 +54,7 @@ public final class TestContext {
     private boolean initialized;
 
     // Key is realmName, value are objects to clean after the test method
-    private Map<String, TestCleanup> cleanups = new ConcurrentHashMap<>();
+    private Map<String, TestCleanup> cleanups = new HashMap<>();
 
     public TestContext(SuiteContext suiteContext, Class testClass) {
         this.suiteContext = suiteContext;
@@ -147,11 +146,7 @@ public final class TestContext {
         TestCleanup cleanup = cleanups.get(realmName);
         if (cleanup == null) {
             cleanup = new TestCleanup(adminClient, realmName);
-            TestCleanup existing = cleanups.putIfAbsent(realmName, cleanup);
-
-            if (existing != null) {
-                cleanup = existing;
-            }
+            cleanups.put(realmName, cleanup);
         }
         return cleanup;
     }

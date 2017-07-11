@@ -270,7 +270,6 @@ public class FormAuthenticationFlow implements AuthenticationFlow {
         URI actionUrl = getActionUrl(executionId, code);
         LoginFormsProvider form = processor.getSession().getProvider(LoginFormsProvider.class)
                 .setActionUri(actionUrl)
-                .setExecution(executionId)
                 .setClientSessionCode(code)
                 .setFormData(formData)
                 .setErrors(errors);

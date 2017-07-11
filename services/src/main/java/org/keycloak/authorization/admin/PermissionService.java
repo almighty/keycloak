@@ -22,7 +22,6 @@ import java.util.Map;
 import org.keycloak.authorization.AuthorizationProvider;
 import org.keycloak.authorization.model.Policy;
 import org.keycloak.authorization.model.ResourceServer;
-import org.keycloak.services.resources.admin.AdminEventBuilder;
 import org.keycloak.services.resources.admin.RealmAuth;
 
 /**
@@ -30,18 +29,18 @@ import org.keycloak.services.resources.admin.RealmAuth;
  */
 public class PermissionService extends PolicyService {
 
-    public PermissionService(ResourceServer resourceServer, AuthorizationProvider authorization, RealmAuth auth, AdminEventBuilder adminEvent) {
-        super(resourceServer, authorization, auth, adminEvent);
+    public PermissionService(ResourceServer resourceServer, AuthorizationProvider authorization, RealmAuth auth) {
+        super(resourceServer, authorization, auth);
     }
 
     @Override
     protected PolicyResourceService doCreatePolicyResource(Policy policy) {
-        return new PolicyTypeResourceService(policy, resourceServer, authorization, auth, adminEvent);
+        return new PolicyTypeResourceService(policy, resourceServer, authorization, auth);
     }
 
     @Override
     protected PolicyTypeService doCreatePolicyTypeResource(String type) {
-        return new PolicyTypeService(type, resourceServer, authorization, auth, adminEvent) {
+        return new PolicyTypeService(type, resourceServer, authorization, auth) {
             @Override
             protected List<Object> doSearch(Integer firstResult, Integer maxResult, Map<String, String[]> filters) {
                 filters.put("permission", new String[] {Boolean.TRUE.toString()});

@@ -60,10 +60,6 @@ public interface PolicyProviderFactory<R extends AbstractPolicyRepresentation> e
 
     }
 
-    default void onExport(Policy policy, PolicyRepresentation representation, AuthorizationProvider authorizationProvider) {
-        representation.setConfig(policy.getConfig());
-    }
-
     default PolicyProviderAdminService getAdminResource(ResourceServer resourceServer, AuthorizationProvider authorization) {
         return null;
     }

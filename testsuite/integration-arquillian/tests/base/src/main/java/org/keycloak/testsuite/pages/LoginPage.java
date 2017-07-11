@@ -26,7 +26,7 @@ import org.openqa.selenium.support.FindBy;
 /**
  * @author <a href="mailto:sthorger@redhat.com">Stian Thorgersen</a>
  */
-public class LoginPage extends LanguageComboboxAwarePage {
+public class LoginPage extends AbstractPage {
 
     @ArquillianResource
     protected OAuthClient oauth;
@@ -74,6 +74,12 @@ public class LoginPage extends LanguageComboboxAwarePage {
     @FindBy(className = "instruction")
     private WebElement instruction;
 
+
+    @FindBy(id = "kc-current-locale-link")
+    private WebElement languageText;
+
+    @FindBy(id = "kc-locale-dropdown")
+    private WebElement localeDropdown;
 
     public void login(String username, String password) {
         usernameInput.clear();
@@ -183,6 +189,16 @@ public class LoginPage extends LanguageComboboxAwarePage {
     public void open() {
         oauth.openLoginForm();
         assertCurrent();
+    }
+
+    public String getLanguageDropdownText() {
+        return languageText.getText();
+    }
+
+    public void openLanguage(String language){
+        WebElement langLink = localeDropdown.findElement(By.xpath("//a[text()='" +language +"']"));
+        String url = langLink.getAttribute("href");
+        driver.navigate().to(url);
     }
 
 }

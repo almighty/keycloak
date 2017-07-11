@@ -23,13 +23,16 @@ package org.keycloak.authorization.authorization.representation;
  */
 public class AuthorizationRequest {
 
-    private AuthorizationRequestMetadata metadata;
     private String ticket;
     private String rpt;
 
     public AuthorizationRequest(String ticket, String rpt) {
         this.ticket = ticket;
         this.rpt = rpt;
+    }
+
+    public AuthorizationRequest(String ticket) {
+        this(ticket, null);
     }
 
     public AuthorizationRequest() {
@@ -42,9 +45,5 @@ public class AuthorizationRequest {
 
     public String getRpt() {
         return this.rpt;
-    }
-
-    public AuthorizationRequestMetadata getMetadata() {
-        return metadata;
     }
 }

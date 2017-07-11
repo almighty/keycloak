@@ -78,13 +78,13 @@ public abstract class AbstractPolicyEnforcer {
 
                 if (pathConfig == null) {
                     if (EnforcementMode.PERMISSIVE.equals(enforcementMode)) {
-                        return createAuthorizationContext(accessToken, null);
+                        return createAuthorizationContext(accessToken);
                     }
 
                     LOGGER.debugf("Could not find a configuration for path [%s]", path);
 
                     if (isDefaultAccessDeniedUri(request, enforcerConfig)) {
-                        return createAuthorizationContext(accessToken, null);
+                        return createAuthorizationContext(accessToken);
                     }
 
                     handleAccessDenied(httpFacade);
@@ -100,7 +100,7 @@ public abstract class AbstractPolicyEnforcer {
 
                 if (isAuthorized(pathConfig, requiredScopes, accessToken, httpFacade)) {
                     try {
-                        return createAuthorizationContext(accessToken, pathConfig);
+                        return createAuthorizationContext(accessToken);
                     } catch (Exception e) {
                         throw new RuntimeException("Error processing path [" + pathConfig.getPath() + "].", e);
                     }
@@ -252,8 +252,8 @@ public abstract class AbstractPolicyEnforcer {
         return requiredScopes;
     }
 
-    private AuthorizationContext createAuthorizationContext(AccessToken accessToken, PathConfig pathConfig) {
-        return new ClientAuthorizationContext(accessToken, pathConfig, this.paths, authzClient);
+    private AuthorizationContext createAuthorizationContext(AccessToken accessToken) {
+        return new ClientAuthorizationContext(accessToken, this.paths, authzClient);
     }
 
     private boolean isResourcePermission(PathConfig actualPathConfig, Permission permission) {

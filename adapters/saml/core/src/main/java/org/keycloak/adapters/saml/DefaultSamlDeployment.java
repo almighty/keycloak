@@ -294,7 +294,6 @@ public class DefaultSamlDeployment implements SamlDeployment {
     private String logoutPage;
     private SignatureAlgorithm signatureAlgorithm;
     private String signatureCanonicalizationMethod;
-    private boolean autodetectBearerOnly;
 
     @Override
     public boolean turnOffChangeSessionIdOnLogin() {
@@ -439,14 +438,5 @@ public class DefaultSamlDeployment implements SamlDeployment {
 
     public void setSignatureAlgorithm(SignatureAlgorithm signatureAlgorithm) {
         this.signatureAlgorithm = signatureAlgorithm;
-    }
-
-    @Override
-    public boolean isAutodetectBearerOnly() {
-        return autodetectBearerOnly;
-    }
-
-    public void setAutodetectBearerOnly(boolean autodetectBearerOnly) {
-        this.autodetectBearerOnly = autodetectBearerOnly;
     }
 }

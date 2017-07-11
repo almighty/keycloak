@@ -644,15 +644,12 @@ public class AuthenticationManager {
 
             // Skip grant screen if everything was already approved by this user
             if (realmRoles.size() > 0 || resourceRoles.size() > 0 || protocolMappers.size() > 0) {
-                String execution = AuthenticatedClientSessionModel.Action.OAUTH_GRANT.name();
-
                 accessCode.
 
                         setAction(AuthenticatedClientSessionModel.Action.REQUIRED_ACTIONS.name());
-                authSession.setAuthNote(AuthenticationProcessor.CURRENT_AUTHENTICATION_EXECUTION, execution);
+                authSession.setAuthNote(AuthenticationProcessor.CURRENT_AUTHENTICATION_EXECUTION, AuthenticatedClientSessionModel.Action.OAUTH_GRANT.name());
 
                 return session.getProvider(LoginFormsProvider.class)
-                        .setExecution(execution)
                         .setClientSessionCode(accessCode.getCode())
                         .setAccessRequest(realmRoles, resourceRoles, protocolMappers)
                         .createOAuthGrant();

@@ -164,8 +164,9 @@ public class RealmCacheSession implements CacheRealmProvider {
 
     @Override
     public void clear() {
+        cache.clear();
         ClusterProvider cluster = session.getProvider(ClusterProvider.class);
-        cluster.notify(InfinispanCacheRealmProviderFactory.REALM_CLEAR_CACHE_EVENTS, new ClearCacheEvent(), false);
+        cluster.notify(InfinispanCacheRealmProviderFactory.REALM_CLEAR_CACHE_EVENTS, new ClearCacheEvent(), true);
     }
 
     @Override

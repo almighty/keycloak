@@ -48,8 +48,6 @@ import org.keycloak.services.filters.KeycloakSessionServletFilter;
 import org.keycloak.services.managers.ApplianceBootstrap;
 import org.keycloak.services.resources.KeycloakApplication;
 
-import org.keycloak.util.JsonSerialization;
-import java.io.IOException;
 import javax.servlet.DispatcherType;
 import javax.servlet.ServletException;
 
@@ -57,7 +55,6 @@ import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
 
 public class KeycloakOnUndertow implements DeployableContainer<KeycloakOnUndertowConfiguration> {
 
@@ -78,14 +75,6 @@ public class KeycloakOnUndertow implements DeployableContainer<KeycloakOnUnderto
         di.setContextPath("/auth");
         di.setDeploymentName("Keycloak");
         di.addInitParameter(KeycloakApplication.KEYCLOAK_EMBEDDED, "true");
-        if (configuration.getKeycloakConfigPropertyOverridesMap() != null) {
-            try {
-                di.addInitParameter(KeycloakApplication.SERVER_CONTEXT_CONFIG_PROPERTY_OVERRIDES,
-                  JsonSerialization.writeValueAsString(configuration.getKeycloakConfigPropertyOverridesMap()));
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
-        }
 
         di.setDefaultServletConfig(new DefaultServletConfig(true));
         di.addWelcomePage("theme/keycloak/welcome/resources/index.html");
@@ -187,14 +176,19 @@ public class KeycloakOnUndertow implements DeployableContainer<KeycloakOnUnderto
             log.info("Using route: " + configuration.getRoute());
         }
 
-        DeploymentInfo di = createAuthServerDeploymentInfo();
-        undertow.deploy(di);
-        ResteasyDeployment deployment = (ResteasyDeployment) di.getServletContextAttributes().get(ResteasyDeployment.class.getName());
-        sessionFactory = ((KeycloakApplication) deployment.getApplication()).getSessionFactory();
+        SetSystemProperty setRouteProperty = new SetSystemProperty(InfinispanConnectionProvider.JBOSS_NODE_NAME, configuration.getRoute());
+        try {
+            DeploymentInfo di = createAuthServerDeploymentInfo();
+            undertow.deploy(di);
+            ResteasyDeployment deployment = (ResteasyDeployment) di.getServletContextAttributes().get(ResteasyDeployment.class.getName());
+            sessionFactory = ((KeycloakApplication) deployment.getApplication()).getSessionFactory();
 
-        setupDevConfig();
+            setupDevConfig();
 
-        log.info("Auth server started in " + (System.currentTimeMillis() - start) + " ms\n");
+            log.info("Auth server started in " + (System.currentTimeMillis() - start) + " ms\n");
+        } finally {
+            setRouteProperty.revert();
+        }
     }
 
 

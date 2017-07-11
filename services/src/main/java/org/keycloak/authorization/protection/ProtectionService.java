@@ -27,17 +27,12 @@ import org.keycloak.authorization.model.ResourceServer;
 import org.keycloak.authorization.protection.permission.PermissionService;
 import org.keycloak.authorization.protection.permission.PermissionsService;
 import org.keycloak.authorization.protection.resource.ResourceService;
-import org.keycloak.common.ClientConnection;
 import org.keycloak.models.ClientModel;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
-import org.keycloak.models.UserModel;
 import org.keycloak.services.ErrorResponseException;
-import org.keycloak.services.resources.admin.AdminAuth;
-import org.keycloak.services.resources.admin.AdminEventBuilder;
 
 import javax.ws.rs.Path;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response.Status;
 
 /**
@@ -46,8 +41,6 @@ import javax.ws.rs.core.Response.Status;
 public class ProtectionService {
 
     private final AuthorizationProvider authorization;
-    @Context
-    protected ClientConnection clientConnection;
 
     public ProtectionService(AuthorizationProvider authorization) {
         this.authorization = authorization;
@@ -57,12 +50,7 @@ public class ProtectionService {
     public Object resource() {
         KeycloakIdentity identity = createIdentity();
         ResourceServer resourceServer = getResourceServer(identity);
-        RealmModel realm = authorization.getRealm();
-        ClientModel client = realm.getClientById(identity.getId());
-        KeycloakSession keycloakSession = authorization.getKeycloakSession();
-        UserModel serviceAccount = keycloakSession.users().getServiceAccount(client);
-        AdminEventBuilder adminEvent = new AdminEventBuilder(realm, new AdminAuth(realm, identity.getAccessToken(), serviceAccount, client), keycloakSession, clientConnection);
-        ResourceSetService resourceManager = new ResourceSetService(resourceServer, this.authorization, null, adminEvent.realm(realm).authClient(client).authUser(serviceAccount));
+        ResourceSetService resourceManager = new ResourceSetService(resourceServer, this.authorization, null);
 
         ResteasyProviderFactory.getInstance().injectProperties(resourceManager);
 

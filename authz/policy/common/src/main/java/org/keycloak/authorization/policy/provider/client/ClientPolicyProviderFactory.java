@@ -3,12 +3,10 @@ package org.keycloak.authorization.policy.provider.client;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.keycloak.Config;
 import org.keycloak.authorization.AuthorizationProvider;
@@ -74,21 +72,6 @@ public class ClientPolicyProviderFactory implements PolicyProviderFactory<Client
     }
 
     @Override
-    public void onExport(Policy policy, PolicyRepresentation representation, AuthorizationProvider authorizationProvider) {
-        ClientPolicyRepresentation userRep = toRepresentation(policy, new ClientPolicyRepresentation());
-        Map<String, String> config = new HashMap<>();
-
-        try {
-            RealmModel realm = authorizationProvider.getRealm();
-            config.put("clients", JsonSerialization.writeValueAsString(userRep.getClients().stream().map(id -> realm.getClientById(id).getClientId()).collect(Collectors.toList())));
-        } catch (IOException cause) {
-            throw new RuntimeException("Failed to export user policy [" + policy.getName() + "]", cause);
-        }
-
-        representation.setConfig(config);
-    }
-
-    @Override
     public PolicyProvider create(KeycloakSession session) {
         return null;
     }
@@ -146,7 +129,7 @@ public class ClientPolicyProviderFactory implements PolicyProviderFactory<Client
     }
 
     private void updateClients(Policy policy, Set<String> clients, AuthorizationProvider authorization) {
-        RealmModel realm = authorization.getRealm();
+        RealmModel realm = authorization.getKeycloakSession().getContext().getRealm();
 
         if (clients == null || clients.isEmpty()) {
             throw new RuntimeException("No client provided.");

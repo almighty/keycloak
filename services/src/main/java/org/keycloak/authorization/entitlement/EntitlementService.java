@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -37,7 +36,6 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -47,7 +45,6 @@ import org.jboss.resteasy.spi.HttpRequest;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.OAuthErrorException;
 import org.keycloak.authorization.AuthorizationProvider;
-import org.keycloak.authorization.authorization.representation.AuthorizationRequestMetadata;
 import org.keycloak.authorization.common.KeycloakEvaluationContext;
 import org.keycloak.authorization.common.KeycloakIdentity;
 import org.keycloak.authorization.entitlement.representation.EntitlementRequest;
@@ -57,7 +54,6 @@ import org.keycloak.authorization.model.ResourceServer;
 import org.keycloak.authorization.model.Scope;
 import org.keycloak.authorization.permission.ResourcePermission;
 import org.keycloak.authorization.policy.evaluation.Result;
-import org.keycloak.authorization.protection.permission.representation.PermissionRequest;
 import org.keycloak.authorization.store.ResourceStore;
 import org.keycloak.authorization.store.ScopeStore;
 import org.keycloak.authorization.store.StoreFactory;
@@ -125,7 +121,7 @@ public class EntitlementService {
             throw new ErrorResponseException(OAuthErrorException.INVALID_REQUEST, "Client does not support permissions", Status.FORBIDDEN);
         }
 
-        return evaluate(null, Permissions.all(resourceServer, identity, authorization), identity, resourceServer);
+        return evaluate(Permissions.all(resourceServer, identity, authorization), identity, resourceServer);
     }
 
     @Path("{resource_server_id}")
@@ -158,13 +154,13 @@ public class EntitlementService {
             throw new ErrorResponseException(OAuthErrorException.INVALID_REQUEST, "Client does not support permissions", Status.FORBIDDEN);
         }
 
-        return evaluate(entitlementRequest.getMetadata(), createPermissions(entitlementRequest, resourceServer, authorization), identity, resourceServer);
+        return evaluate(createPermissions(entitlementRequest, resourceServer, authorization), identity, resourceServer);
     }
 
-    private Response evaluate(AuthorizationRequestMetadata metadata, List<ResourcePermission> permissions, KeycloakIdentity identity, ResourceServer resourceServer) {
+    private Response evaluate(List<ResourcePermission> permissions, KeycloakIdentity identity, ResourceServer resourceServer) {
         try {
             List<Result> result = authorization.evaluators().from(permissions, new KeycloakEvaluationContext(this.authorization.getKeycloakSession())).evaluate();
-            List<Permission> entitlements = Permissions.permits(result, metadata, authorization, resourceServer);
+            List<Permission> entitlements = Permissions.permits(result, authorization, resourceServer.getId());
 
             if (!entitlements.isEmpty()) {
                 return Cors.add(request, Response.ok().entity(new EntitlementResponse(createRequestingPartyToken(entitlements, identity.getAccessToken())))).allowedOrigins(identity.getAccessToken()).allowedMethods("GET").exposedHeaders(Cors.ACCESS_CONTROL_ALLOW_METHODS).build();
@@ -196,15 +192,9 @@ public class EntitlementService {
 
     private List<ResourcePermission> createPermissions(EntitlementRequest entitlementRequest, ResourceServer resourceServer, AuthorizationProvider authorization) {
         StoreFactory storeFactory = authorization.getStoreFactory();
-        Map<String, Set<String>> permissionsToEvaluate = new LinkedHashMap<>();
-        AuthorizationRequestMetadata metadata = entitlementRequest.getMetadata();
-        Integer limit = metadata != null && metadata.getLimit() > 0 ? metadata.getLimit() : null;
+        Map<String, Set<String>> permissionsToEvaluate = new HashMap<>();
 
-        for (PermissionRequest requestedResource : entitlementRequest.getPermissions()) {
-            if (limit != null && limit <= 0) {
-                break;
-            }
-
+        entitlementRequest.getPermissions().forEach(requestedResource -> {
             Resource resource;
 
             if (requestedResource.getResourceSetId() != null) {
@@ -218,17 +208,14 @@ public class EntitlementService {
             }
 
             Set<ScopeRepresentation> requestedScopes = requestedResource.getScopes().stream().map(ScopeRepresentation::new).collect(Collectors.toSet());
-            Set<String> scopeNames = requestedScopes.stream().map(ScopeRepresentation::getName).collect(Collectors.toSet());
+            Set<String> collect = requestedScopes.stream().map(ScopeRepresentation::getName).collect(Collectors.toSet());
 
             if (resource != null) {
-                permissionsToEvaluate.put(resource.getId(), scopeNames);
-                if (limit != null) {
-                    limit--;
-                }
+                permissionsToEvaluate.put(resource.getId(), collect);
             } else {
                 ResourceStore resourceStore = authorization.getStoreFactory().getResourceStore();
                 ScopeStore scopeStore = authorization.getStoreFactory().getScopeStore();
-                List<Resource> resources = new ArrayList<>();
+                List<Resource> resources = new ArrayList<Resource>();
 
                 resources.addAll(resourceStore.findByScope(requestedScopes.stream().map(scopeRepresentation -> {
                     Scope scope = scopeStore.findByName(scopeRepresentation.getName(), resourceServer.getId());
@@ -241,21 +228,17 @@ public class EntitlementService {
                 }).filter(s -> s != null).collect(Collectors.toList()), resourceServer.getId()));
 
                 for (Resource resource1 : resources) {
-                    permissionsToEvaluate.put(resource1.getId(), scopeNames);
-                    if (limit != null) {
-                        limit--;
-                    }
+                    permissionsToEvaluate.put(resource1.getId(), collect);
                 }
 
-                permissionsToEvaluate.put("$KC_SCOPE_PERMISSION", scopeNames);
+                permissionsToEvaluate.put("$KC_SCOPE_PERMISSION", collect);
             }
-        }
+        });
 
         String rpt = entitlementRequest.getRpt();
 
         if (rpt != null && !"".equals(rpt)) {
             KeycloakContext context = authorization.getKeycloakSession().getContext();
-
             if (!Tokens.verifySignature(session, context.getRealm(), rpt)) {
                 throw new ErrorResponseException("invalid_rpt", "RPT signature is invalid", Status.FORBIDDEN);
             }
@@ -275,11 +258,7 @@ public class EntitlementService {
                     List<Permission> permissions = authorizationData.getPermissions();
 
                     if (permissions != null) {
-                        for (Permission permission : permissions) {
-                            if (limit != null && limit <= 0) {
-                                break;
-                            }
-
+                        permissions.forEach(permission -> {
                             Resource resourcePermission = storeFactory.getResourceStore().findById(permission.getResourceSetId(), resourceServer.getId());
 
                             if (resourcePermission != null) {
@@ -288,9 +267,6 @@ public class EntitlementService {
                                 if (scopes == null) {
                                     scopes = new HashSet<>();
                                     permissionsToEvaluate.put(resourcePermission.getId(), scopes);
-                                    if (limit != null) {
-                                        limit--;
-                                    }
                                 }
 
                                 Set<String> scopePermission = permission.getScopes();
@@ -299,7 +275,7 @@ public class EntitlementService {
                                     scopes.addAll(scopePermission);
                                 }
                             }
-                        }
+                        });
                     }
                 }
             }

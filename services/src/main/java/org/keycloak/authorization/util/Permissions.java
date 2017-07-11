@@ -21,7 +21,6 @@ package org.keycloak.authorization.util;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +29,6 @@ import java.util.stream.Collectors;
 
 import org.keycloak.authorization.AuthorizationProvider;
 import org.keycloak.authorization.Decision.Effect;
-import org.keycloak.authorization.authorization.representation.AuthorizationRequestMetadata;
 import org.keycloak.authorization.identity.Identity;
 import org.keycloak.authorization.model.Policy;
 import org.keycloak.authorization.model.Resource;
@@ -136,8 +134,8 @@ public final class Permissions {
         return permissions;
     }
 
-    public static List<Permission> permits(List<Result> evaluation, AuthorizationRequestMetadata metadata, AuthorizationProvider authorizationProvider, ResourceServer resourceServer) {
-        Map<String, Permission> permissions = new LinkedHashMap<>();
+    public static List<Permission> permits(List<Result> evaluation, AuthorizationProvider authorizationProvider, String resourceServerId) {
+        Map<String, Permission> permissions = new HashMap<>();
 
         for (Result result : evaluation) {
             Set<Scope> deniedScopes = new HashSet<>();
@@ -190,14 +188,14 @@ public final class Permissions {
 
                 if (deniedCount == 0) {
                     result.setStatus(Effect.PERMIT);
-                    grantPermission(authorizationProvider, permissions, permission, resourceServer, metadata);
+                    grantPermission(authorizationProvider, permissions, permission, resourceServerId);
                 } else {
                     // if a full deny or resource denied or the requested scopes were denied
                     if (deniedCount == results.size() || resourceDenied || (!deniedScopes.isEmpty() && grantedScopes.isEmpty())) {
                         result.setStatus(Effect.DENY);
                     } else {
                         result.setStatus(Effect.PERMIT);
-                        grantPermission(authorizationProvider, permissions, permission, resourceServer, metadata);
+                        grantPermission(authorizationProvider, permissions, permission, resourceServerId);
                     }
                 }
             }
@@ -214,7 +212,7 @@ public final class Permissions {
         return "scope".equals(policy.getType());
     }
 
-    private static void grantPermission(AuthorizationProvider authorizationProvider, Map<String, Permission> permissions, ResourcePermission permission, ResourceServer resourceServer, AuthorizationRequestMetadata metadata) {
+    private static void grantPermission(AuthorizationProvider authorizationProvider, Map<String, Permission> permissions, ResourcePermission permission, String resourceServer) {
         List<Resource> resources = new ArrayList<>();
         Resource resource = permission.getResource();
         Set<String> scopes = permission.getScopes().stream().map(Scope::getName).collect(Collectors.toSet());
@@ -226,14 +224,14 @@ public final class Permissions {
 
             if (!permissionScopes.isEmpty()) {
                 ResourceStore resourceStore = authorizationProvider.getStoreFactory().getResourceStore();
-                resources.addAll(resourceStore.findByScope(permissionScopes.stream().map(Scope::getId).collect(Collectors.toList()), resourceServer.getId()));
+                resources.addAll(resourceStore.findByScope(permissionScopes.stream().map(Scope::getId).collect(Collectors.toList()), resourceServer));
             }
         }
 
         if (!resources.isEmpty()) {
             for (Resource allowedResource : resources) {
                 String resourceId = allowedResource.getId();
-                String resourceName = metadata == null || metadata.isIncludeResourceName() ? allowedResource.getName() : null;
+                String resourceName = allowedResource.getName();
                 Permission evalPermission = permissions.get(allowedResource.getId());
 
                 if (evalPermission == null) {

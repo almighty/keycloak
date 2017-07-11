@@ -31,10 +31,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.UriInfo;
 
 import org.keycloak.authorization.AuthorizationProvider;
 import org.keycloak.authorization.admin.ResourceSetService;
@@ -70,10 +68,10 @@ public class ResourceService {
     @POST
     @Consumes("application/json")
     @Produces("application/json")
-    public Response create(@Context  UriInfo uriInfo, UmaResourceRepresentation umaResource) {
+    public Response create(UmaResourceRepresentation umaResource) {
         checkResourceServerSettings();
         ResourceRepresentation resource = toResourceRepresentation(umaResource);
-        Response response = this.resourceManager.create(uriInfo, resource);
+        Response response = this.resourceManager.create(resource);
 
         if (response.getEntity() instanceof ResourceRepresentation) {
             return Response.status(Status.CREATED).entity(toUmaRepresentation((ResourceRepresentation) response.getEntity())).build();
@@ -86,9 +84,9 @@ public class ResourceService {
     @PUT
     @Consumes("application/json")
     @Produces("application/json")
-    public Response update(@Context UriInfo uriInfo, @PathParam("id") String id, UmaResourceRepresentation representation) {
+    public Response update(@PathParam("id") String id, UmaResourceRepresentation representation) {
         ResourceRepresentation resource = toResourceRepresentation(representation);
-        Response response = this.resourceManager.update(uriInfo, id, resource);
+        Response response = this.resourceManager.update(id, resource);
 
         if (response.getEntity() instanceof ResourceRepresentation) {
             return Response.noContent().build();
@@ -99,9 +97,9 @@ public class ResourceService {
 
     @Path("/{id}")
     @DELETE
-    public Response delete(@Context UriInfo uriInfo, @PathParam("id") String id) {
+    public Response delete(@PathParam("id") String id) {
         checkResourceServerSettings();
-        return this.resourceManager.delete(uriInfo, id);
+        return this.resourceManager.delete(id);
     }
 
     @Path("/{id}")

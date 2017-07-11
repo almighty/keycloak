@@ -5,8 +5,6 @@ import org.jboss.arquillian.container.spi.Container;
 import java.net.URL;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Stream;
-import org.jboss.arquillian.container.spi.Container.State;
 
 /**
  *
@@ -97,14 +95,6 @@ public class ContainerInfo {
         return Objects.equals(
                 this.arquillianContainer.getContainerConfiguration().getContainerName(),
                 other.arquillianContainer.getContainerConfiguration().getContainerName());
-    }
-
-    public boolean isStarted() {
-        return arquillianContainer.getState() == State.STARTED;
-    }
-
-    public boolean isManual() {
-        return Objects.equals(arquillianContainer.getContainerConfiguration().getMode(), "manual");
     }
 
 }

@@ -18,7 +18,6 @@
 package org.keycloak.testsuite.client;
 
 
-import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.keycloak.admin.client.resource.ClientResource;
@@ -45,7 +44,6 @@ import org.keycloak.testsuite.util.UserInfoClientUtil;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 
@@ -321,20 +319,11 @@ public class OIDCPairwiseClientRegistrationTest extends AbstractClientRegistrati
         oauth.openLoginForm();
         loginResponse = new OAuthClient.AuthorizationEndpointResponse(oauth);
         accessTokenResponse = oauth.doAccessTokenRequest(loginResponse.getCode(), pairwiseClient.getClientSecret());
-
-        // Assert token payloads don't contain more than one "sub"
-        String accessTokenPayload = getPayload(accessTokenResponse.getAccessToken());
-        Assert.assertEquals(1, StringUtils.countMatches(accessTokenPayload, "\"sub\""));
-        String idTokenPayload = getPayload(accessTokenResponse.getIdToken());
-        Assert.assertEquals(1, StringUtils.countMatches(idTokenPayload, "\"sub\""));
-        String refreshTokenPayload = getPayload(accessTokenResponse.getRefreshToken());
-        Assert.assertEquals(1, StringUtils.countMatches(refreshTokenPayload, "\"sub\""));
-
         accessToken = oauth.verifyToken(accessTokenResponse.getAccessToken());
         Assert.assertEquals("test-user", accessToken.getPreferredUsername());
         Assert.assertEquals("test-user@localhost", accessToken.getEmail());
 
-        // Assert pairwise client has different subject than userId
+        // Assert pairwise client has different subject like userId
         String pairwiseUserId = accessToken.getSubject();
         Assert.assertNotEquals(pairwiseUserId, user.getId());
 
@@ -349,10 +338,5 @@ public class OIDCPairwiseClientRegistrationTest extends AbstractClientRegistrati
         } finally {
             jaxrsClient.close();
         }
-    }
-
-    private String getPayload(String token) {
-        String payloadBase64 = token.split("\\.")[1];
-        return new String(Base64.getDecoder().decode(payloadBase64));
     }
 }

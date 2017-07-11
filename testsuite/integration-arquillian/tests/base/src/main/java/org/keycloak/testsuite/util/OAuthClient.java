@@ -102,7 +102,7 @@ public class OAuthClient {
 
     private String maxAge;
 
-    private String responseType;
+    private String responseType = OAuth2Constants.CODE;
 
     private String responseMode;
 
@@ -171,8 +171,6 @@ public class OAuthClient {
         clientSessionState = null;
         clientSessionHost = null;
         maxAge = null;
-        responseType = OAuth2Constants.CODE;
-        responseMode = null;
         nonce = null;
         request = null;
         requestUri = null;

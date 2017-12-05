@@ -82,6 +82,13 @@ public class AuthenticationSessionManager {
         log.debugf("Set AUTH_SESSION_ID cookie with value %s", encodedAuthSessionId);
     }
 
+    public void clearAuthSessionCookie(RealmModel realm) {
+
+        UriInfo uriInfo = session.getContext().getUri();
+        String cookiePath = AuthenticationManager.getRealmCookiePath(realm, uriInfo);
+
+        AuthenticationManager.expireCookie(realm, AUTH_SESSION_ID, cookiePath, true, session.getContext().getConnection());
+    }
 
     private String getAuthSessionCookieDecoded(RealmModel realm) {
         String cookieVal = CookieHelper.getCookieValue(AUTH_SESSION_ID);

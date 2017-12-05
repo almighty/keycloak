@@ -281,6 +281,7 @@ public class AuthenticationManager {
                 .setEventBuilder(event);
         Response response = protocol.finishLogout(userSession);
         session.sessions().removeUserSession(realm, userSession);
+        new AuthenticationSessionManager(session).clearAuthSessionCookie(realm);
         return response;
     }
 
